@@ -1,4 +1,4 @@
-package com.example.hellomate2
+package com.example.HelloMate
 
 import io.flutter.embedding.android.FlutterActivity
 

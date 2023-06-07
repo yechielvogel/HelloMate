@@ -1,4 +1,4 @@
-# hellomate2
+# HelloMate
 
 A new Flutter project.
 

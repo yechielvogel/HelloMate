@@ -1,6 +1,6 @@
 {
-    "name": "hellomate2",
-    "short_name": "hellomate2",
+    "name": "HelloMate",
+    "short_name": "HelloMate",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
