@@ -21,12 +21,3 @@ String now = DateFormat('dd/MM/yyyy').format(DateTime.now());
 
 
 
-// globals.scoreCounter = 10;
-// globals.saveScoreCounter(globals.scoreCounter);
-
-// Future<int?> getScoreCounter() async {
-//   SharedPreferences prefs = await SharedPreferences.getInstance();
-//   return prefs.getInt('scoreCounter');
-// }
-
-// globals.scoreCounter = await getScoreCounter();

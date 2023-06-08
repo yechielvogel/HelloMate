@@ -11,7 +11,15 @@ import 'package:intl/intl.dart';
 
 // import 'package:sms_advanced/sms_advanced.dart';
 
-void main() => runApp(const MyApp());
+void main() {
+  runApp(
+    MaterialApp(
+      home: Scaffold(
+        body: MyApp(),
+      ),
+    ),
+  );
+}
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -59,20 +67,20 @@ class _MyAppState extends State<MyApp> {
     List<String> tileWidgetTitles = [];
     List<String> tileWidgetRetakes = [];
     List<String> tileWidgetTrailings = [];
-    List<String> tileWidgetScores = [];
+    List<String> tileWidgetScore = [];
 
     for (var tileWidget in tileWidgets) {
       tileWidgetTitles.add(tileWidget.title);
       tileWidgetRetakes.add(tileWidget.retake);
       tileWidgetTrailings.add(tileWidget.trailing);
-      tileWidgetScores.add(tileWidget.score);
+      tileWidgetScore.add(tileWidget.score);
     }
 
     await prefs.setStringList('tileWidgetTitles', tileWidgetTitles);
     await prefs.setStringList('tileWidgetRetakes', tileWidgetRetakes);
     await prefs.setStringList('tileWidgetTrailings', tileWidgetTrailings);
     await prefs.setStringList(
-        'tileWidgetScores', tileWidgetScores); // Corrected the key name
+        'tileWidgetScores', tileWidgetScore); // Corrected the key name
   }
 
 // add: if tilewidgets list is empty build a widget saying you have no hellos.
@@ -110,7 +118,7 @@ class _MyAppState extends State<MyApp> {
           preferredSize: Size.fromHeight(50.0),
           child: AppBar(
             elevation: 0,
-            backgroundColor: Colors.yellow,
+            backgroundColor: Colors.black,
             title: SizedBox(
               width: 40,
               height: 40,
@@ -119,21 +127,28 @@ class _MyAppState extends State<MyApp> {
                   'lib/assets/HelloMateIcon.png',
                   width: 40,
                   height: 40,
+                  color: Colors.yellow,
                 ),
               ),
             ),
             actions: <Widget>[
               IconButton(
                   icon: const Icon(CupertinoIcons.gear_alt_fill),
-                  color: Colors.black,
-                  onPressed: () async {
-                    //showBottomSheet(context: context, builder: (context) => buildSheet());},
-                  })
+                  color: Colors.yellow,
+                  onPressed: () async => {
+                        showModalBottomSheet(
+                            backgroundColor: Colors.grey[900],
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(20))),
+                            context: context,
+                            builder: (context) => buildSheet())
+                      })
             ],
           ),
         ),
         body: Container(
-          color: Colors.white,
+          color: Colors.black,
           padding: const EdgeInsets.all(0),
           child: ListView(
             padding: const EdgeInsets.all(10),
@@ -164,13 +179,30 @@ class _MyAppState extends State<MyApp> {
                 print(globals.retakeCounter);
               }
             },
-            child: const Icon(Icons.add),
+            child: const Icon(CupertinoIcons.add),
           ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
   }
+
+  Widget buildSheet() => Container(
+        padding: EdgeInsets.all(10),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              ' \n \n Big things coming soon \n \n \n',
+              style: TextStyle(
+                  fontSize: 25,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold),
+            ),
+            Container(),
+          ],
+        ),
+      );
 }
 
 class TileWidget extends StatelessWidget {
@@ -215,13 +247,13 @@ class TileWidget extends StatelessWidget {
       children: [
         Container(
           height: 10,
-          color: Colors.transparent,
+          color: Colors.black,
         ),
         Container(
           height: 70,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: Colors.black,
+            color: Colors.grey[900],
             boxShadow: [
               BoxShadow(color: Colors.black.withOpacity(0.7), blurRadius: 5),
             ],
@@ -312,16 +344,3 @@ Future<void> getContacts() async {
   globals.randomContactName = globals.randomContact?.name;
   globals.randomContactNumber = globals.randomContact?.phoneNumber;
 }
-
-// DateTime now = DateTime.now();
-//     String today = DateFormat('dd-MM-yyy').format(now);
-
-//     if (today == DateFormat('dd-MM-yyy').format(DateTime.now())) {
-//       today = 'today';
-//     } else if (today ==
-//         DateFormat('dd-MM-yyy')
-//             .format(DateTime.now().subtract(Duration(days: 1)))) {
-//       today = 'yesterday';
-//     } else {
-//       today = today;
-//     }
