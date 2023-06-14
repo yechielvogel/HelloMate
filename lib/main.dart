@@ -1,3 +1,5 @@
+import 'package:HelloMate/Themes/DarkMode.dart';
+import 'package:HelloMate/Themes/LightMode.dart';
 import 'package:flutter/material.dart';
 import 'globals.dart' as globals;
 import 'getcontacts.dart';
@@ -7,12 +9,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
+// import 'Themes/DarkMode.dart';
+// import 'Themes/LightMode.dart';
 
 GlobalKey<_MyAppState> myAppKey = GlobalKey<_MyAppState>();
 
 void main() {
   runApp(
     MaterialApp(
+      theme: lightTheme,
+      darkTheme: darkTheme,
       home: Scaffold(
         body: MyApp(key: myAppKey),
       ),
@@ -40,18 +46,6 @@ class _MyAppState extends State<MyApp> {
   Color tileTextColor = globals.colorMode3;
   Color tileIconColor = globals.colorMode3;
 
-  void rebuildWidgets() {
-    setState(() {
-      reloadWidgets();
-    });
-  }
-
-  void rebuildShowBottomWidget() {
-    setState(() {
-      reloadModalBottomSheet();
-    });
-  }
-
   void reloadModalBottomSheet() {
     try {
       // Close the existing bottom sheet if it's open
@@ -71,9 +65,7 @@ class _MyAppState extends State<MyApp> {
       ),
       context: context,
       isScrollControlled: true,
-      builder: (context) => MyWidget(
-        reloadCallback: () {},
-      ),
+      builder: (context) => MyWidget(),
     );
   }
 
@@ -161,19 +153,21 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: lightTheme,
+      darkTheme: darkTheme,
       // restorationScopeId: 'root',
-      theme: ThemeData(
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        hoverColor: Colors.transparent,
-        scaffoldBackgroundColor: globals.colorMode,
-      ),
+      // theme: ThemeData(
+      //   splashColor: Colors.transparent,
+      //   highlightColor: Colors.transparent,
+      //   hoverColor: Colors.transparent,
+      //   scaffoldBackgroundColor: globals.colorMode,
+      // ),
       home: Scaffold(
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(50.0),
           child: AppBar(
             elevation: 0,
-            backgroundColor: globals.colorMode,
+            backgroundColor: Theme.of(context).colorScheme.background,
             title: SizedBox(
               width: 40,
               height: 40,
@@ -188,32 +182,33 @@ class _MyAppState extends State<MyApp> {
             ),
             actions: <Widget>[
               IconButton(
-                icon: (isPressed)
-                    ? Icon(CupertinoIcons.gear_alt_fill)
-                    : Icon(CupertinoIcons.gear),
+                icon: Icon(
+                  isPressed
+                      ? CupertinoIcons.gear_alt_fill
+                      : CupertinoIcons.gear,
+                ),
                 color: Colors.yellow,
+                splashColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                highlightColor: Colors.transparent,
                 onPressed: () async {
                   setState(() {
                     isPressed = true;
                   });
+
                   showModalBottomSheet(
-                    backgroundColor: globals.colorMode2,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(20),
                       ),
                     ),
                     context: context,
-                    builder: (context) => MyWidget(
-                      reloadCallback: () {
-                        myAppKey.currentState?.reloadModalBottomSheet();
-                        myAppKey.currentState?.rebuildShowBottomWidget();
-                      },
-                    ),
-                  );
-
-                  setState(() {
-                    isPressed = false;
+                    builder: (context) => MyWidget(),
+                  ).whenComplete(() {
+                    setState(() {
+                      isPressed = false;
+                    });
                   });
                 },
               ),
@@ -221,7 +216,7 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
         body: Container(
-          color: globals.colorMode,
+          color: Theme.of(context).colorScheme.background,
           padding: const EdgeInsets.all(0),
           child: ListView(
             padding: const EdgeInsets.all(10),
@@ -235,7 +230,9 @@ class _MyAppState extends State<MyApp> {
           margin: const EdgeInsets.only(bottom: 0),
           child: FloatingActionButton(
             backgroundColor: Colors.yellow,
-            foregroundColor: globals.colorMode,
+            foregroundColor: Theme.of(context).colorScheme.background,
+            splashColor: Colors.transparent,
+            hoverColor: Colors.transparent,
             elevation: 5,
             onPressed: () async {
               HapticFeedback.heavyImpact();
@@ -282,7 +279,6 @@ class TileWidget extends StatelessWidget {
   final String trailing;
   final String score;
   final String? tiledate;
-  final VoidCallback? rebuildCallback;
 
   static List<String> tileTitles = [];
 
@@ -293,7 +289,6 @@ class TileWidget extends StatelessWidget {
     required this.trailing,
     required this.score,
     this.tiledate,
-    this.rebuildCallback,
   }) : super(key: key);
 
   String getFormattedTrailing(String trailing) {
@@ -328,7 +323,7 @@ class TileWidget extends StatelessWidget {
           height: 70,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: globals.colorMode2,
+            color: Theme.of(context).colorScheme.primary,
             boxShadow: [],
           ),
           child: ListTile(
@@ -342,13 +337,15 @@ class TileWidget extends StatelessWidget {
                   WidgetSpan(
                     child: Icon(
                       CupertinoIcons.arrow_2_squarepath,
-                      color: globals.colorMode4,
+                      color: Theme.of(context).colorScheme.tertiary,
                       size: 15,
                     ),
                   ),
                   TextSpan(
                     text: '  ' + retake.toString(),
-                    style: TextStyle(color: globals.colorMode4, fontSize: 12),
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.tertiary,
+                        fontSize: 12),
                   ),
                   WidgetSpan(
                     child: Container(width: 20),
@@ -356,14 +353,16 @@ class TileWidget extends StatelessWidget {
                   WidgetSpan(
                     child: Image.asset(
                       'lib/assets/HelloMateIcon.png',
-                      color: globals.colorMode4,
+                      color: Theme.of(context).colorScheme.tertiary,
                       width: 14,
                       height: 14,
                     ),
                   ),
                   TextSpan(
                     text: '  ' + score.toString(),
-                    style: TextStyle(color: globals.colorMode4, fontSize: 12),
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.tertiary,
+                        fontSize: 12),
                   ),
                   WidgetSpan(
                     child: Container(width: 20),
@@ -371,7 +370,7 @@ class TileWidget extends StatelessWidget {
                   WidgetSpan(
                     child: Icon(
                       CupertinoIcons.share,
-                      color: globals.colorMode4,
+                      color: Theme.of(context).colorScheme.tertiary,
                       size: 15,
                     ),
                   ),
@@ -387,7 +386,7 @@ class TileWidget extends StatelessWidget {
                       },
                       child: Icon(
                         CupertinoIcons.chat_bubble,
-                        color: globals.colorMode4,
+                        color: Theme.of(context).colorScheme.tertiary,
                         size: 15,
                       ),
                     ),
@@ -397,14 +396,16 @@ class TileWidget extends StatelessWidget {
             ),
             trailing: Text(
               getFormattedTrailing(trailing),
-              style: TextStyle(fontSize: 10.0, color: globals.colorMode4),
+              style: TextStyle(
+                  fontSize: 10.0,
+                  color: Theme.of(context).colorScheme.tertiary),
             ),
             leading: const Icon(
               Icons.account_circle_rounded,
               size: 50,
             ),
-            iconColor: globals.colorMode3,
-            textColor: globals.colorMode3,
+            iconColor: Theme.of(context).colorScheme.secondary,
+            textColor: Theme.of(context).colorScheme.secondary,
           ),
         ),
       ],
@@ -419,9 +420,6 @@ Future<void> getContacts() async {
 }
 
 class MyWidget extends StatefulWidget {
-  final void Function() reloadCallback;
-  const MyWidget({Key? key, required this.reloadCallback}) : super(key: key);
-
   @override
   _MyWidgetState createState() => _MyWidgetState();
 }
@@ -436,7 +434,7 @@ class _MyWidgetState extends State<MyWidget> {
           child: Icon(
             CupertinoIcons.minus,
             size: 50,
-            color: globals.colorMode3,
+            color: Theme.of(context).colorScheme.secondary,
           ),
         ),
         SizedBox(height: 0),
@@ -449,7 +447,7 @@ class _MyWidgetState extends State<MyWidget> {
                 'Dark mode',
                 style: TextStyle(
                   fontSize: 25,
-                  color: globals.colorMode3,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
             ),
@@ -460,16 +458,7 @@ class _MyWidgetState extends State<MyWidget> {
                 value: globals.darkMode,
                 activeColor: CupertinoColors.systemYellow,
                 onChanged: (bool? value) {
-                  setState(() {
-                    globals.darkMode = value ?? true;
-                    globals.darkMode2 = value ?? true;
-                    globals.darkMode3 = value ?? true;
-                    globals.updateColorMode();
-                    myAppKey.currentState?.rebuildWidgets();
-                    myAppKey.currentState?.reloadModalBottomSheet();
-                    myAppKey.currentState?.rebuildShowBottomWidget();
-                    widget.reloadCallback();
-                  });
+                  setState(() {});
                 },
               ),
             ),
@@ -486,7 +475,7 @@ class _MyWidgetState extends State<MyWidget> {
                 'Use device settings',
                 style: TextStyle(
                   fontSize: 25,
-                  color: globals.colorMode3,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
             ),
