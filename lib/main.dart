@@ -3,19 +3,18 @@ import 'globals.dart' as globals;
 import 'getcontacts.dart';
 import 'sendtext.dart';
 import 'message_bridge.dart';
-// import 'package:flutter_sms/flutter_sms.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 
-// import 'package:sms_advanced/sms_advanced.dart';
+GlobalKey<_MyAppState> myAppKey = GlobalKey<_MyAppState>();
 
 void main() {
   runApp(
     MaterialApp(
       home: Scaffold(
-        body: MyApp(),
+        body: MyApp(key: myAppKey),
       ),
     ),
   );
@@ -36,6 +35,46 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     loadTileWidgets();
+  }
+
+  Color tileTextColor = globals.colorMode3;
+  Color tileIconColor = globals.colorMode3;
+
+  void rebuildWidgets() {
+    setState(() {
+      reloadWidgets();
+    });
+  }
+
+  void rebuildShowBottomWidget() {
+    setState(() {
+      reloadModalBottomSheet();
+    });
+  }
+
+  void reloadModalBottomSheet() {
+    try {
+      // Close the existing bottom sheet if it's open
+      Navigator.of(context).pop();
+    } catch (e) {
+      // Handle the error if no element is found
+      print('Error closing bottom sheet: $e');
+    }
+
+    // Show the updated bottom sheet with the new color
+    showModalBottomSheet(
+      backgroundColor: globals.colorMode2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
+      ),
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => MyWidget(
+        reloadCallback: () {},
+      ),
+    );
   }
 
   void loadTileWidgets() async {
@@ -101,24 +140,40 @@ class _MyAppState extends State<MyApp> {
               title: globals.randomContactName ?? '',
               retake: globals.retakeCounter.toString(),
               score: globals.scoreCounter.toString(),
-              trailing: globals.now.toString())); // tiledate:
+              trailing: globals.now.toString()));
+      // tiledate:
       // var tiledate = today;
     });
+  }
+
+  void saveScoreCounter(int score) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt('scoreCounter', score);
+  }
+
+  Future<void> updateScoreCounter(int newScore) async {
+    setState(() {
+      globals.scoreCounter = newScore;
+    });
+    saveScoreCounter(newScore);
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      restorationScopeId: 'root',
+      // restorationScopeId: 'root',
       theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+        scaffoldBackgroundColor: globals.colorMode,
       ),
       home: Scaffold(
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(50.0),
           child: AppBar(
             elevation: 0,
-            backgroundColor: Colors.black,
+            backgroundColor: globals.colorMode,
             title: SizedBox(
               width: 40,
               height: 40,
@@ -133,22 +188,40 @@ class _MyAppState extends State<MyApp> {
             ),
             actions: <Widget>[
               IconButton(
-                  icon: const Icon(CupertinoIcons.gear_alt_fill),
-                  color: Colors.yellow,
-                  onPressed: () async => {
-                        showModalBottomSheet(
-                            backgroundColor: Colors.grey[900],
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(20))),
-                            context: context,
-                            builder: (context) => buildSheet())
-                      })
+                icon: (isPressed)
+                    ? Icon(CupertinoIcons.gear_alt_fill)
+                    : Icon(CupertinoIcons.gear),
+                color: Colors.yellow,
+                onPressed: () async {
+                  setState(() {
+                    isPressed = true;
+                  });
+                  showModalBottomSheet(
+                    backgroundColor: globals.colorMode2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(20),
+                      ),
+                    ),
+                    context: context,
+                    builder: (context) => MyWidget(
+                      reloadCallback: () {
+                        myAppKey.currentState?.reloadModalBottomSheet();
+                        myAppKey.currentState?.rebuildShowBottomWidget();
+                      },
+                    ),
+                  );
+
+                  setState(() {
+                    isPressed = false;
+                  });
+                },
+              ),
             ],
           ),
         ),
         body: Container(
-          color: Colors.black,
+          color: globals.colorMode,
           padding: const EdgeInsets.all(0),
           child: ListView(
             padding: const EdgeInsets.all(10),
@@ -162,14 +235,17 @@ class _MyAppState extends State<MyApp> {
           margin: const EdgeInsets.only(bottom: 0),
           child: FloatingActionButton(
             backgroundColor: Colors.yellow,
-            foregroundColor: Colors.black,
+            foregroundColor: globals.colorMode,
             elevation: 5,
             onPressed: () async {
               HapticFeedback.heavyImpact();
               await getContacts();
               String resultCode = await MessageBridge.sendmessage();
               if (resultCode == '1') {
-                globals.scoreCounter = (globals.scoreCounter ?? 0) + 1;
+                setState(() {
+                  globals.scoreCounter = (globals.scoreCounter ?? 0) + 1;
+                });
+                await updateScoreCounter(globals.scoreCounter!);
                 await addTileWidget();
                 await saveTileWidgets();
                 globals.retakeCounter = 1;
@@ -187,22 +263,17 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  Widget buildSheet() => Container(
-        padding: EdgeInsets.all(10),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              ' \n \n Big things coming soon \n \n \n',
-              style: TextStyle(
-                  fontSize: 25,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold),
-            ),
-            Container(),
-          ],
-        ),
-      );
+  void reloadWidgets() {
+    loadTileWidgets();
+    setState(() {});
+  }
+
+  bool isPressed = false;
+  bool notPressed = false;
+
+  //  void setState(() {
+  //   lightMode = true;
+  // });
 }
 
 class TileWidget extends StatelessWidget {
@@ -211,15 +282,20 @@ class TileWidget extends StatelessWidget {
   final String trailing;
   final String score;
   final String? tiledate;
+  final VoidCallback? rebuildCallback;
+
   static List<String> tileTitles = [];
+
   const TileWidget({
-    super.key,
+    Key? key,
     required this.title,
     required this.retake,
     required this.trailing,
     required this.score,
     this.tiledate,
-  });
+    this.rebuildCallback,
+  }) : super(key: key);
+
   String getFormattedTrailing(String trailing) {
     DateTime now = DateTime.now();
     DateTime yesterday = now.subtract(const Duration(days: 1));
@@ -236,7 +312,6 @@ class TileWidget extends StatelessWidget {
         trailingDate.day == yesterday.day) {
       return 'Yesterday';
     } else {
-      // Format trailingDate using a date format of your choice
       return formatter.format(trailingDate);
     }
   }
@@ -247,58 +322,56 @@ class TileWidget extends StatelessWidget {
       children: [
         Container(
           height: 10,
-          color: Colors.black,
+          color: Colors.transparent,
         ),
         Container(
           height: 70,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: Colors.grey[900],
-            boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.7), blurRadius: 5),
-            ],
+            color: globals.colorMode2,
+            boxShadow: [],
           ),
           child: ListTile(
             title: Text(
               title,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: // Text(subtitle),
-                Text.rich(
+            subtitle: Text.rich(
               TextSpan(
                 children: [
-                  const WidgetSpan(
+                  WidgetSpan(
                     child: Icon(
                       CupertinoIcons.arrow_2_squarepath,
-                      color: Colors.white70,
+                      color: globals.colorMode4,
                       size: 15,
                     ),
                   ),
                   TextSpan(
-                      text: '  ' + retake.toString(),
-                      style:
-                          const TextStyle(color: Colors.white70, fontSize: 12)),
+                    text: '  ' + retake.toString(),
+                    style: TextStyle(color: globals.colorMode4, fontSize: 12),
+                  ),
                   WidgetSpan(
                     child: Container(width: 20),
                   ),
                   WidgetSpan(
                     child: Image.asset(
                       'lib/assets/HelloMateIcon.png',
-                      color: Colors.white70,
+                      color: globals.colorMode4,
                       width: 14,
                       height: 14,
                     ),
                   ),
                   TextSpan(
-                      text: '  ' + score.toString(),
-                      style: TextStyle(color: Colors.white70, fontSize: 12)),
+                    text: '  ' + score.toString(),
+                    style: TextStyle(color: globals.colorMode4, fontSize: 12),
+                  ),
                   WidgetSpan(
                     child: Container(width: 20),
                   ),
-                  const WidgetSpan(
+                  WidgetSpan(
                     child: Icon(
                       CupertinoIcons.share,
-                      color: Colors.white70,
+                      color: globals.colorMode4,
                       size: 15,
                     ),
                   ),
@@ -314,7 +387,7 @@ class TileWidget extends StatelessWidget {
                       },
                       child: Icon(
                         CupertinoIcons.chat_bubble,
-                        color: Colors.white70,
+                        color: globals.colorMode4,
                         size: 15,
                       ),
                     ),
@@ -322,16 +395,16 @@ class TileWidget extends StatelessWidget {
                 ],
               ),
             ),
-            trailing: Text(getFormattedTrailing(trailing),
-                style: const TextStyle(fontSize: 10.0)),
+            trailing: Text(
+              getFormattedTrailing(trailing),
+              style: TextStyle(fontSize: 10.0, color: globals.colorMode4),
+            ),
             leading: const Icon(
               Icons.account_circle_rounded,
               size: 50,
             ),
-            iconColor: Colors.white,
-            textColor: Colors.white,
-            // onLongPress: () =>
-            //     {MessageBridge.sendmessage(), HapticFeedback.heavyImpact()},
+            iconColor: globals.colorMode3,
+            textColor: globals.colorMode3,
           ),
         ),
       ],
@@ -343,4 +416,91 @@ Future<void> getContacts() async {
   globals.randomContact = await getRandomContact();
   globals.randomContactName = globals.randomContact?.name;
   globals.randomContactNumber = globals.randomContact?.phoneNumber;
+}
+
+class MyWidget extends StatefulWidget {
+  final void Function() reloadCallback;
+  const MyWidget({Key? key, required this.reloadCallback}) : super(key: key);
+
+  @override
+  _MyWidgetState createState() => _MyWidgetState();
+}
+
+class _MyWidgetState extends State<MyWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          child: Icon(
+            CupertinoIcons.minus,
+            size: 50,
+            color: globals.colorMode3,
+          ),
+        ),
+        SizedBox(height: 0),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 16), // Apply left inset
+              child: Text(
+                'Dark mode',
+                style: TextStyle(
+                  fontSize: 25,
+                  color: globals.colorMode3,
+                ),
+              ),
+            ),
+            Padding(
+              padding:
+                  EdgeInsets.only(right: 16, left: 16), // Apply right inset
+              child: CupertinoSwitch(
+                value: globals.darkMode,
+                activeColor: CupertinoColors.systemYellow,
+                onChanged: (bool? value) {
+                  setState(() {
+                    globals.darkMode = value ?? true;
+                    globals.darkMode2 = value ?? true;
+                    globals.darkMode3 = value ?? true;
+                    globals.updateColorMode();
+                    myAppKey.currentState?.rebuildWidgets();
+                    myAppKey.currentState?.reloadModalBottomSheet();
+                    myAppKey.currentState?.rebuildShowBottomWidget();
+                    widget.reloadCallback();
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+        Container(),
+        const SizedBox(height: 0),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(right: 16, left: 16, bottom: 50),
+              child: Text(
+                'Use device settings',
+                style: TextStyle(
+                  fontSize: 25,
+                  color: globals.colorMode3,
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(right: 16, left: 16, bottom: 50),
+              child: CupertinoSwitch(
+                value: globals.systemSettings,
+                activeColor: CupertinoColors.systemYellow,
+                onChanged: (bool? value) {},
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 }
