@@ -3,21 +3,19 @@ import 'package:HelloMate/Themes/LightMode.dart';
 import 'package:flutter/material.dart';
 import 'globals.dart' as globals;
 import 'getcontacts.dart';
+// import 'globals.dart';
 import 'sendtext.dart';
 import 'message_bridge.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
-// import 'Themes/DarkMode.dart';
-// import 'Themes/LightMode.dart';
 
 GlobalKey<_MyAppState> myAppKey = GlobalKey<_MyAppState>();
-
 void main() {
   runApp(
     MaterialApp(
-      theme: lightTheme,
+      theme: globals.isDarkModeEnabled ? darkTheme : lightTheme,
       darkTheme: darkTheme,
       home: Scaffold(
         body: MyApp(key: myAppKey),
@@ -41,32 +39,6 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     loadTileWidgets();
-  }
-
-  Color tileTextColor = globals.colorMode3;
-  Color tileIconColor = globals.colorMode3;
-
-  void reloadModalBottomSheet() {
-    try {
-      // Close the existing bottom sheet if it's open
-      Navigator.of(context).pop();
-    } catch (e) {
-      // Handle the error if no element is found
-      print('Error closing bottom sheet: $e');
-    }
-
-    // Show the updated bottom sheet with the new color
-    showModalBottomSheet(
-      backgroundColor: globals.colorMode2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(20),
-        ),
-      ),
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => MyWidget(),
-    );
   }
 
   void loadTileWidgets() async {
@@ -152,111 +124,109 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      // restorationScopeId: 'root',
-      // theme: ThemeData(
-      //   splashColor: Colors.transparent,
-      //   highlightColor: Colors.transparent,
-      //   hoverColor: Colors.transparent,
-      //   scaffoldBackgroundColor: globals.colorMode,
-      // ),
-      home: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(50.0),
-          child: AppBar(
-            elevation: 0,
-            backgroundColor: Theme.of(context).colorScheme.background,
-            title: SizedBox(
-              width: 40,
-              height: 40,
-              child: Center(
-                child: Image.asset(
-                  'lib/assets/HelloMateIcon.png',
+    return Scaffold(
+      body: Container(
+        color: Theme.of(context).colorScheme.background,
+        child: SafeArea(
+          bottom: false,
+          child: NestedScrollView(
+            floatHeaderSlivers: true,
+            headerSliverBuilder: (context, innerBoxIsScrolled) => [
+              SliverAppBar(
+                floating: true,
+                elevation: 0,
+                backgroundColor: Theme.of(context).colorScheme.background,
+                title: SizedBox(
                   width: 40,
                   height: 40,
-                  color: Colors.yellow,
+                  child: Center(
+                    child: Image.asset(
+                      'lib/assets/HelloMateIcon.png',
+                      width: 40,
+                      height: 40,
+                      color: Colors.yellow,
+                    ),
+                  ),
                 ),
+                actions: <Widget>[
+                  IconButton(
+                    icon: Icon(
+                      isPressed
+                          ? CupertinoIcons.gear_alt_fill
+                          : CupertinoIcons.gear,
+                    ),
+                    color: Colors.yellow,
+                    splashColor: Colors.transparent,
+                    hoverColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    onPressed: () async {
+                      setState(() {
+                        isPressed = true;
+                      });
+
+                      showModalBottomSheet(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
+                        ),
+                        context: context,
+                        builder: (context) => MyWidget(),
+                      ).whenComplete(() {
+                        setState(() {
+                          isPressed = false;
+                        });
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ],
+            body: Container(
+              color: Theme.of(context).colorScheme.background,
+              padding: const EdgeInsets.all(0),
+              child: ListView(
+                padding: const EdgeInsets.all(10),
+                children: [
+                  ...tileWidgets,
+                ],
               ),
             ),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(
-                  isPressed
-                      ? CupertinoIcons.gear_alt_fill
-                      : CupertinoIcons.gear,
-                ),
-                color: Colors.yellow,
-                splashColor: Colors.transparent,
-                hoverColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-                onPressed: () async {
-                  setState(() {
-                    isPressed = true;
-                  });
-
-                  showModalBottomSheet(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(20),
-                      ),
-                    ),
-                    context: context,
-                    builder: (context) => MyWidget(),
-                  ).whenComplete(() {
-                    setState(() {
-                      isPressed = false;
-                    });
-                  });
-                },
-              ),
-            ],
           ),
         ),
-        body: Container(
-          color: Theme.of(context).colorScheme.background,
-          padding: const EdgeInsets.all(0),
-          child: ListView(
-            padding: const EdgeInsets.all(10),
-            children: [
-              ...tileWidgets,
-            ],
-          ),
-        ),
-        floatingActionButton: Container(
-          alignment: Alignment.bottomCenter,
-          margin: const EdgeInsets.only(bottom: 0),
-          child: FloatingActionButton(
-            backgroundColor: Colors.yellow,
-            foregroundColor: Theme.of(context).colorScheme.background,
-            splashColor: Colors.transparent,
-            hoverColor: Colors.transparent,
-            elevation: 5,
-            onPressed: () async {
-              HapticFeedback.heavyImpact();
-              await getContacts();
-              String resultCode = await MessageBridge.sendmessage();
-              if (resultCode == '1') {
-                setState(() {
-                  globals.scoreCounter = (globals.scoreCounter ?? 0) + 1;
-                });
-                await updateScoreCounter(globals.scoreCounter!);
-                await addTileWidget();
-                await saveTileWidgets();
-                globals.retakeCounter = 1;
-                print('retake counter: ' + globals.retakeCounter.toString());
-              } else if (resultCode == '3') {
-                globals.retakeCounter = (globals.retakeCounter ?? 0) + 1;
-                print(globals.retakeCounter);
-              }
-            },
-            child: const Icon(CupertinoIcons.add),
-          ),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
+      floatingActionButton: Container(
+        alignment: Alignment.bottomCenter,
+        margin: const EdgeInsets.only(bottom: 0),
+        child: FloatingActionButton(
+          backgroundColor: Colors.yellow,
+          foregroundColor: Theme.of(context).colorScheme.background,
+          splashColor: Colors.transparent,
+          hoverColor: Colors.transparent,
+          elevation: 5,
+          onPressed: () async {
+            HapticFeedback.heavyImpact();
+            await getContacts();
+            String resultCode = await MessageBridge.sendmessage();
+            if (resultCode == '1') {
+              setState(() {
+                globals.scoreCounter = (globals.scoreCounter ?? 0) + 1;
+              });
+              await updateScoreCounter(globals.scoreCounter!);
+              await addTileWidget();
+              await saveTileWidgets();
+              globals.retakeCounter = 1;
+              print('retake counter: ' + globals.retakeCounter.toString());
+            } else if (resultCode == '3') {
+              globals.retakeCounter = (globals.retakeCounter ?? 0) + 1;
+              print(globals.retakeCounter);
+            }
+          },
+          child: const Icon(CupertinoIcons.add),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -425,71 +395,200 @@ class MyWidget extends StatefulWidget {
 }
 
 class _MyWidgetState extends State<MyWidget> {
+  // the bool's and final below is a test for a dark mode could remove.
+  // bool isDarkMode = false;
+  // bool useDeviceSettings = false;
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          child: Icon(
-            CupertinoIcons.minus,
-            size: 50,
-            color: Theme.of(context).colorScheme.secondary,
+    // final themeData = useDeviceSettings
+    //     ? Theme.of(context)
+    //     : (isDarkMode ? darkTheme : Theme.of(context));
+    return Container(
+      decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primary,
+          // Theme.of(context).colorScheme.primary,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20.0),
+            topRight: Radius.circular(20.0),
+          )),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            child: Icon(
+              CupertinoIcons.minus,
+              size: 50,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
           ),
-        ),
-        SizedBox(height: 0),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(left: 16), // Apply left inset
-              child: Text(
-                'Dark mode',
-                style: TextStyle(
-                  fontSize: 25,
-                  color: Theme.of(context).colorScheme.secondary,
+          SizedBox(height: 0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(left: 16), // Apply left inset
+                child: Text(
+                  'Dark mode',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding:
-                  EdgeInsets.only(right: 16, left: 16), // Apply right inset
-              child: CupertinoSwitch(
-                value: globals.darkMode,
-                activeColor: CupertinoColors.systemYellow,
-                onChanged: (bool? value) {
-                  setState(() {});
-                },
-              ),
-            ),
-          ],
-        ),
-        Container(),
-        const SizedBox(height: 0),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(right: 16, left: 16, bottom: 50),
-              child: Text(
-                'Use device settings',
-                style: TextStyle(
-                  fontSize: 25,
-                  color: Theme.of(context).colorScheme.secondary,
+              Padding(
+                padding:
+                    EdgeInsets.only(right: 16, left: 16), // Apply right inset
+                child: CupertinoSwitch(
+                  value: globals.isDarkModeEnabled,
+                  activeColor: CupertinoColors.systemYellow,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      globals.updateThemeMode(setState);
+                      print(globals.isDarkModeEnabled);
+                    });
+                  },
+                ),
+              )
+            ],
+          ),
+          Container(),
+          const SizedBox(height: 0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(right: 16, left: 16, bottom: 50),
+                child: Text(
+                  'Use device settings',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(right: 16, left: 16, bottom: 50),
-              child: CupertinoSwitch(
-                value: globals.systemSettings,
-                activeColor: CupertinoColors.systemYellow,
-                onChanged: (bool? value) {},
-              ),
-            ),
-          ],
-        ),
-      ],
+              Padding(
+                padding: EdgeInsets.only(right: 16, left: 16, bottom: 50),
+                child: CupertinoSwitch(
+                  value: false,
+                  activeColor: CupertinoColors.systemYellow,
+                  onChanged: (bool? value) {
+                    setState(() {});
+                  },
+                ),
+              )
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
+
+
+// @override
+//   Widget build(BuildContext context) {
+//     // theme: globals.isDarkModeEnabled ? darkTheme : lightTheme,
+//     // darkTheme: darkTheme,
+//     // restorationScopeId: 'root',
+//     // theme: ThemeData(
+//     //   splashColor: Colors.transparent,
+//     //   highlightColor: Colors.transparent,
+//     //   hoverColor: Colors.transparent,
+//     //   scaffoldBackgroundColor: globals.colorMode,
+//     // ),
+//     return Scaffold(
+//       appBar: PreferredSize(
+//         preferredSize: Size.fromHeight(50.0),
+//         child: AppBar(
+//           elevation: 0,
+//           backgroundColor: Theme.of(context).colorScheme.background,
+//           title: SizedBox(
+//             width: 40,
+//             height: 40,
+//             child: Center(
+//               child: Image.asset(
+//                 'lib/assets/HelloMateIcon.png',
+//                 width: 40,
+//                 height: 40,
+//                 color: Colors.yellow,
+//               ),
+//             ),
+//           ),
+//           actions: <Widget>[
+//             IconButton(
+//               icon: Icon(
+//                 isPressed ? CupertinoIcons.gear_alt_fill : CupertinoIcons.gear,
+//               ),
+//               color: Colors.yellow,
+//               splashColor: Colors.transparent,
+//               hoverColor: Colors.transparent,
+//               highlightColor: Colors.transparent,
+//               onPressed: () async {
+//                 setState(() {
+//                   isPressed = true;
+//                 });
+
+//                 showModalBottomSheet(
+//                   backgroundColor: Theme.of(context).colorScheme.primary,
+//                   shape: RoundedRectangleBorder(
+//                     borderRadius: BorderRadius.vertical(
+//                       top: Radius.circular(20),
+//                     ),
+//                   ),
+//                   context: context,
+//                   builder: (context) => MyWidget(),
+//                 ).whenComplete(() {
+//                   setState(() {
+//                     isPressed = false;
+//                   });
+//                 });
+//               },
+//             ),
+//           ],
+//         ),
+//       ),
+//       body: Container(
+//         color: Theme.of(context).colorScheme.background,
+//         padding: const EdgeInsets.all(0),
+//         child: ListView(
+//           padding: const EdgeInsets.all(10),
+//           children: [
+//             ...tileWidgets,
+//           ],
+//         ),
+//       ),
+//       floatingActionButton: Container(
+//         alignment: Alignment.bottomCenter,
+//         margin: const EdgeInsets.only(bottom: 0),
+//         child: FloatingActionButton(
+//           backgroundColor: Colors.yellow,
+//           foregroundColor: Theme.of(context).colorScheme.background,
+//           splashColor: Colors.transparent,
+//           hoverColor: Colors.transparent,
+//           elevation: 5,
+//           onPressed: () async {
+//             HapticFeedback.heavyImpact();
+//             await getContacts();
+//             String resultCode = await MessageBridge.sendmessage();
+//             if (resultCode == '1') {
+//               setState(() {
+//                 globals.scoreCounter = (globals.scoreCounter ?? 0) + 1;
+//               });
+//               await updateScoreCounter(globals.scoreCounter!);
+//               await addTileWidget();
+//               await saveTileWidgets();
+//               globals.retakeCounter = 1;
+//               print('retake counter: ' + globals.retakeCounter.toString());
+//             } else if (resultCode == '3') {
+//               globals.retakeCounter = (globals.retakeCounter ?? 0) + 1;
+//               print(globals.retakeCounter);
+//             }
+//           },
+//           child: const Icon(CupertinoIcons.add),
+//         ),
+//       ),
+//       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+//     );
+//   }
