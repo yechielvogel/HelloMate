@@ -39,7 +39,7 @@ Future<bool> _sendSMS(String message, List<String> recipients) async {
 Future<void> sendText() async {
   String message = "";
   List<String> recipients = [
-    globals.randomContactNumber ?? '',
+    globals.textAgain ?? '',
   ];
 
   bool isSent = await _sendSMS(message, recipients);
@@ -59,6 +59,7 @@ void runCertainFunction() {
 
 void handleSendingFailed() {
   print('did not send');
+  print(globals.textAgain);
 }
 
 // new code

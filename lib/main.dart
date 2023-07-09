@@ -1,8 +1,13 @@
+import 'dart:convert';
 import 'package:HelloMate/Themes/DarkMode.dart';
 import 'package:HelloMate/Themes/LightMode.dart';
 import 'package:flutter/material.dart';
 import 'globals.dart' as globals;
 import 'getcontacts.dart';
+// import 'globals.dart';
+import 'share_button.dart';
+// import 'package:share_plus/share_plus.dart';
+// import 'get_contacts_test.dart';
 // import 'globals.dart';
 import 'sendtext.dart';
 import 'message_bridge.dart';
@@ -15,7 +20,8 @@ GlobalKey<_MyAppState> myAppKey = GlobalKey<_MyAppState>();
 void main() {
   runApp(
     MaterialApp(
-      theme: globals.isDarkModeEnabled ? darkTheme : lightTheme,
+      // theme: globals.isDarkModeEnabled ? darkTheme : lightTheme,
+      theme: lightTheme,
       darkTheme: darkTheme,
       home: Scaffold(
         body: MyApp(key: myAppKey),
@@ -51,6 +57,8 @@ class _MyAppState extends State<MyApp> {
         prefs.getStringList('tileWidgetTrailings') ?? [];
     List<String> tileWidgetScores =
         prefs.getStringList('tileWidgetScores') ?? [];
+    List<String> tileWidgetProfilePics =
+        prefs.getStringList('tileWidgetProfilePics') ?? [];
 
     setState(() {
       tileWidgets = List<TileWidget>.generate(tileWidgetTitles.length, (index) {
@@ -59,6 +67,9 @@ class _MyAppState extends State<MyApp> {
           retake: tileWidgetRetakes[index],
           trailing: tileWidgetTrailings[index],
           score: tileWidgetScores[index],
+          profilePic: index < tileWidgetProfilePics.length
+              ? tileWidgetProfilePics[index]
+              : '',
         );
       });
     });
@@ -71,19 +82,22 @@ class _MyAppState extends State<MyApp> {
     List<String> tileWidgetRetakes = [];
     List<String> tileWidgetTrailings = [];
     List<String> tileWidgetScore = [];
+    List<String> tileWidgetProfilePics = [];
 
     for (var tileWidget in tileWidgets) {
       tileWidgetTitles.add(tileWidget.title);
       tileWidgetRetakes.add(tileWidget.retake);
       tileWidgetTrailings.add(tileWidget.trailing);
       tileWidgetScore.add(tileWidget.score);
+      tileWidgetProfilePics.add(tileWidget.profilePic ?? '');
     }
 
     await prefs.setStringList('tileWidgetTitles', tileWidgetTitles);
     await prefs.setStringList('tileWidgetRetakes', tileWidgetRetakes);
     await prefs.setStringList('tileWidgetTrailings', tileWidgetTrailings);
-    await prefs.setStringList(
-        'tileWidgetScores', tileWidgetScore); // Corrected the key name
+    await prefs.setStringList('tileWidgetScores', tileWidgetScore);
+    await prefs.setStringList('tileWidgetProfilePics',
+        tileWidgetProfilePics); // Corrected the key name
   }
 
 // add: if tilewidgets list is empty build a widget saying you have no hellos.
@@ -104,7 +118,9 @@ class _MyAppState extends State<MyApp> {
               title: globals.randomContactName ?? '',
               retake: globals.retakeCounter.toString(),
               score: globals.scoreCounter.toString(),
-              trailing: globals.now.toString()));
+              trailing: globals.now.toString(),
+              profilePic: globals.randomContact?.profilePic));
+
       // tiledate:
       // var tiledate = today;
     });
@@ -207,7 +223,11 @@ class _MyAppState extends State<MyApp> {
           elevation: 5,
           onPressed: () async {
             HapticFeedback.heavyImpact();
+            // rememer to remove the three lines below
             await getContacts();
+            print(globals.randomContact?.phoneNumber);
+            // await addTileWidget();
+            // await saveTileWidgets();
             String resultCode = await MessageBridge.sendmessage();
             if (resultCode == '1') {
               setState(() {
@@ -218,6 +238,7 @@ class _MyAppState extends State<MyApp> {
               await saveTileWidgets();
               globals.retakeCounter = 1;
               print('retake counter: ' + globals.retakeCounter.toString());
+              print('score counter: ' + globals.scoreCounter.toString());
             } else if (resultCode == '3') {
               globals.retakeCounter = (globals.retakeCounter ?? 0) + 1;
               print(globals.retakeCounter);
@@ -249,6 +270,7 @@ class TileWidget extends StatelessWidget {
   final String trailing;
   final String score;
   final String? tiledate;
+  final String? profilePic;
 
   static List<String> tileTitles = [];
 
@@ -258,6 +280,7 @@ class TileWidget extends StatelessWidget {
     required this.retake,
     required this.trailing,
     required this.score,
+    required this.profilePic,
     this.tiledate,
   }) : super(key: key);
 
@@ -338,10 +361,22 @@ class TileWidget extends StatelessWidget {
                     child: Container(width: 20),
                   ),
                   WidgetSpan(
-                    child: Icon(
-                      CupertinoIcons.share,
-                      color: Theme.of(context).colorScheme.tertiary,
-                      size: 15,
+                    child: InkWell(
+                      onTap: () {
+                        HapticFeedback.heavyImpact();
+                        print(title + ' ' + retake);
+                        globals.retakeNumber = retake;
+                        retakeTry();
+                        onShare(context);
+                        // globals.shareButton();
+                        print(globals.retakeNumber);
+                        print(title + ' ' + retake);
+                      },
+                      child: Icon(
+                        CupertinoIcons.share,
+                        color: Theme.of(context).colorScheme.tertiary,
+                        size: 15,
+                      ),
                     ),
                   ),
                   WidgetSpan(
@@ -351,8 +386,9 @@ class TileWidget extends StatelessWidget {
                     child: InkWell(
                       onTap: () {
                         HapticFeedback.heavyImpact();
+                        globals.textAgain = title;
+                        print(title);
                         sendText();
-                        print('object');
                       },
                       child: Icon(
                         CupertinoIcons.chat_bubble,
@@ -370,10 +406,27 @@ class TileWidget extends StatelessWidget {
                   fontSize: 10.0,
                   color: Theme.of(context).colorScheme.tertiary),
             ),
-            leading: const Icon(
-              Icons.account_circle_rounded,
-              size: 50,
-            ),
+            // code below works but for some reason it work
+            // when you start the app.
+            leading: profilePic != null && profilePic!.isNotEmpty
+                ? CircleAvatar(
+                    backgroundImage: MemoryImage(base64Decode(profilePic!)),
+                    radius: 23,
+                  )
+                : const Icon(
+                    Icons.account_circle_rounded,
+                    size: 50,
+                  ),
+            // leading: globals.randomContact?.profilePic != null
+            //     ? CircleAvatar(
+            //         backgroundImage: MemoryImage(
+            //             base64Decode(globals.randomContact!.profilePic!)),
+            //         radius: 25,
+            //       )
+            //     : const Icon(
+            //         Icons.account_circle_rounded,
+            //         size: 50,
+            //       ),
             iconColor: Theme.of(context).colorScheme.secondary,
             textColor: Theme.of(context).colorScheme.secondary,
           ),
@@ -387,6 +440,7 @@ Future<void> getContacts() async {
   globals.randomContact = await getRandomContact();
   globals.randomContactName = globals.randomContact?.name;
   globals.randomContactNumber = globals.randomContact?.phoneNumber;
+  globals.randomContactAvatar = globals.randomContact?.profilePic;
 }
 
 class MyWidget extends StatefulWidget {
@@ -400,6 +454,7 @@ class _MyWidgetState extends State<MyWidget> {
   // bool useDeviceSettings = false;
   @override
   Widget build(BuildContext context) {
+    // final themeProvider = Provider.of<ThemeProvider>(context);
     // final themeData = useDeviceSettings
     //     ? Theme.of(context)
     //     : (isDarkMode ? darkTheme : Theme.of(context));
@@ -485,110 +540,3 @@ class _MyWidgetState extends State<MyWidget> {
     );
   }
 }
-
-
-// @override
-//   Widget build(BuildContext context) {
-//     // theme: globals.isDarkModeEnabled ? darkTheme : lightTheme,
-//     // darkTheme: darkTheme,
-//     // restorationScopeId: 'root',
-//     // theme: ThemeData(
-//     //   splashColor: Colors.transparent,
-//     //   highlightColor: Colors.transparent,
-//     //   hoverColor: Colors.transparent,
-//     //   scaffoldBackgroundColor: globals.colorMode,
-//     // ),
-//     return Scaffold(
-//       appBar: PreferredSize(
-//         preferredSize: Size.fromHeight(50.0),
-//         child: AppBar(
-//           elevation: 0,
-//           backgroundColor: Theme.of(context).colorScheme.background,
-//           title: SizedBox(
-//             width: 40,
-//             height: 40,
-//             child: Center(
-//               child: Image.asset(
-//                 'lib/assets/HelloMateIcon.png',
-//                 width: 40,
-//                 height: 40,
-//                 color: Colors.yellow,
-//               ),
-//             ),
-//           ),
-//           actions: <Widget>[
-//             IconButton(
-//               icon: Icon(
-//                 isPressed ? CupertinoIcons.gear_alt_fill : CupertinoIcons.gear,
-//               ),
-//               color: Colors.yellow,
-//               splashColor: Colors.transparent,
-//               hoverColor: Colors.transparent,
-//               highlightColor: Colors.transparent,
-//               onPressed: () async {
-//                 setState(() {
-//                   isPressed = true;
-//                 });
-
-//                 showModalBottomSheet(
-//                   backgroundColor: Theme.of(context).colorScheme.primary,
-//                   shape: RoundedRectangleBorder(
-//                     borderRadius: BorderRadius.vertical(
-//                       top: Radius.circular(20),
-//                     ),
-//                   ),
-//                   context: context,
-//                   builder: (context) => MyWidget(),
-//                 ).whenComplete(() {
-//                   setState(() {
-//                     isPressed = false;
-//                   });
-//                 });
-//               },
-//             ),
-//           ],
-//         ),
-//       ),
-//       body: Container(
-//         color: Theme.of(context).colorScheme.background,
-//         padding: const EdgeInsets.all(0),
-//         child: ListView(
-//           padding: const EdgeInsets.all(10),
-//           children: [
-//             ...tileWidgets,
-//           ],
-//         ),
-//       ),
-//       floatingActionButton: Container(
-//         alignment: Alignment.bottomCenter,
-//         margin: const EdgeInsets.only(bottom: 0),
-//         child: FloatingActionButton(
-//           backgroundColor: Colors.yellow,
-//           foregroundColor: Theme.of(context).colorScheme.background,
-//           splashColor: Colors.transparent,
-//           hoverColor: Colors.transparent,
-//           elevation: 5,
-//           onPressed: () async {
-//             HapticFeedback.heavyImpact();
-//             await getContacts();
-//             String resultCode = await MessageBridge.sendmessage();
-//             if (resultCode == '1') {
-//               setState(() {
-//                 globals.scoreCounter = (globals.scoreCounter ?? 0) + 1;
-//               });
-//               await updateScoreCounter(globals.scoreCounter!);
-//               await addTileWidget();
-//               await saveTileWidgets();
-//               globals.retakeCounter = 1;
-//               print('retake counter: ' + globals.retakeCounter.toString());
-//             } else if (resultCode == '3') {
-//               globals.retakeCounter = (globals.retakeCounter ?? 0) + 1;
-//               print(globals.retakeCounter);
-//             }
-//           },
-//           child: const Icon(CupertinoIcons.add),
-//         ),
-//       ),
-//       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-//     );
-//   }

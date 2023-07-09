@@ -9,14 +9,18 @@ import 'package:intl/intl.dart';
 ContactInfo? randomContact;
 String? randomContactName;
 String? randomContactNumber;
+String? randomContactAvatar;
 int? retakeCounter = 1;
 String stringretakeCounter = retakeCounter.toString();
 int? scoreCounter;
 String now = DateFormat('dd/MM/yyyy').format(DateTime.now());
 bool systemSettings = false;
+String? textAgain;
+String? retakeNumber;
 
 bool shouldAnimateBottomSheet = true;
 bool isDarkModeEnabled = false;
+List<String> shareButtonList = [];
 
 void saveScoreCounter(int score) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -29,4 +33,8 @@ void updateThemeMode(Function setState) {
   setState(() {
     isDarkModeEnabled = !isDarkModeEnabled;
   });
+}
+
+Future<void> shareButton() async {
+  print(randomContactName);
 }
