@@ -233,7 +233,7 @@ class _MyAppState extends State<MyApp> {
             HapticFeedback.heavyImpact();
             // rememer to remove the three lines below
             await getContacts();
-            // print(globals.randomContact?.phoneNumber);
+            print(globals.randomContact?.phoneNumber);
             // SharedPreferences prefs = await SharedPreferences.getInstance();
             // int savedScore = prefs.getInt('scoreCounter') ?? 0;
             // globals.scoreCounter = savedScore + 1;
@@ -334,113 +334,107 @@ class TileWidget extends StatelessWidget {
             boxShadow: [],
           ),
           child: ListTile(
+            onTap: () {
+              HapticFeedback.heavyImpact();
+              globals.textAgain = titleNumbers;
+              print(title);
+              sendText();
+            },
             title: Text(
               title,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: Text.rich(
-              TextSpan(
-                children: [
-                  WidgetSpan(
+            subtitle: Row(
+              children: [
+                Container(
+                  height: 20,
+                  width: 50,
+                  padding: EdgeInsets.all(0),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        height: 13,
+                        child: Icon(
+                          CupertinoIcons.arrow_2_squarepath,
+                          color: Theme.of(context).colorScheme.tertiary,
+                          size: 15,
+                        ),
+                      ),
+                      SizedBox(
+                        child: Text(
+                          '  ' + retake.toString(),
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.tertiary,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  width: 50,
+                  padding: EdgeInsets.all(0),
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        'lib/assets/HelloMateIcon.png',
+                        color: Theme.of(context).colorScheme.tertiary,
+                        width: 14,
+                        height: 14,
+                      ),
+                      Text(
+                        '  ' + score.toString(),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.tertiary,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  width: 25,
+                  padding: EdgeInsets.all(0),
+                  child: InkWell(
+                    onTap: () {
+                      HapticFeedback.heavyImpact();
+                      print(title + ' ' + retake);
+                      globals.retakeNumber = retake;
+                      retakeTry();
+                      onShare(context);
+                      // globals.shareButton();
+                      print(globals.retakeNumber);
+                      print(title + ' ' + retake);
+                    },
                     child: Icon(
-                      CupertinoIcons.arrow_2_squarepath,
+                      CupertinoIcons.share,
                       color: Theme.of(context).colorScheme.tertiary,
                       size: 15,
                     ),
                   ),
-                  TextSpan(
-                    text: '  ' + retake.toString(),
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.tertiary,
-                        fontSize: 12),
-                  ),
-                  WidgetSpan(
-                    child: Container(width: 20),
-                  ),
-                  WidgetSpan(
-                    child: Image.asset(
-                      'lib/assets/HelloMateIcon.png',
-                      color: Theme.of(context).colorScheme.tertiary,
-                      width: 14,
-                      height: 14,
-                    ),
-                  ),
-                  TextSpan(
-                    text: '  ' + score.toString(),
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.tertiary,
-                        fontSize: 12),
-                  ),
-                  WidgetSpan(
-                    child: Container(width: 20),
-                  ),
-                  WidgetSpan(
-                    child: InkWell(
-                      onTap: () {
-                        HapticFeedback.heavyImpact();
-                        print(title + ' ' + retake);
-                        globals.retakeNumber = retake;
-                        retakeTry();
-                        onShare(context);
-                        // globals.shareButton();
-                        print(globals.retakeNumber);
-                        print(title + ' ' + retake);
-                      },
-                      child: Icon(
-                        CupertinoIcons.share,
-                        color: Theme.of(context).colorScheme.tertiary,
-                        size: 15,
-                      ),
-                    ),
-                  ),
-                  WidgetSpan(
-                    child: Container(width: 20),
-                  ),
-                  WidgetSpan(
-                    child: InkWell(
-                      onTap: () {
-                        HapticFeedback.heavyImpact();
-                        globals.textAgain = titleNumbers;
-                        print(title);
-                        sendText();
-                      },
-                      child: Icon(
-                        CupertinoIcons.chat_bubble,
-                        color: Theme.of(context).colorScheme.tertiary,
-                        size: 15,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
             trailing: Text(
               getFormattedTrailing(trailing),
               style: TextStyle(
-                  fontSize: 10.0,
-                  color: Theme.of(context).colorScheme.tertiary),
+                fontSize: 10.0,
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
             ),
-            // code below works but for some reason it work
-            // when you start the app.
-            leading: profilePic != null && profilePic!.isNotEmpty
-                ? CircleAvatar(
-                    backgroundImage: MemoryImage(base64Decode(profilePic!)),
-                    radius: 23,
-                  )
-                : const Icon(
-                    Icons.account_circle_rounded,
-                    size: 50,
-                  ),
-            // leading: globals.randomContact?.profilePic != null
-            //     ? CircleAvatar(
-            //         backgroundImage: MemoryImage(
-            //             base64Decode(globals.randomContact!.profilePic!)),
-            //         radius: 25,
-            //       )
-            //     : const Icon(
-            //         Icons.account_circle_rounded,
-            //         size: 50,
-            //       ),
+            leading: Container(
+              width: 50,
+              child: profilePic != null && profilePic!.isNotEmpty
+                  ? CircleAvatar(
+                      backgroundImage: MemoryImage(base64Decode(profilePic!)),
+                      radius: 23,
+                    )
+                  : const Icon(
+                      Icons.account_circle_rounded,
+                      size: 50,
+                    ),
+            ),
             iconColor: Theme.of(context).colorScheme.secondary,
             textColor: Theme.of(context).colorScheme.secondary,
           ),
@@ -1109,6 +1103,145 @@ class _MyWidgetState extends State<MyWidget> {
 //           ),
 //         ],
 //       ),
+//     );
+//   }
+// }
+
+// new code below 
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       children: [
+//         Container(
+//           height: 10,
+//           color: Colors.transparent,
+//         ),
+//         Container(
+//           height: 70,
+//           decoration: BoxDecoration(
+//             borderRadius: BorderRadius.circular(20),
+//             color: Theme.of(context).colorScheme.primary,
+//             boxShadow: [],
+//           ),
+//           child: ListTile(
+//             onTap: () {
+//               HapticFeedback.heavyImpact();
+//               globals.textAgain = titleNumbers;
+//               print(title);
+//               sendText();
+//             },
+//             title: Text(
+//               title,
+//               style: const TextStyle(fontWeight: FontWeight.bold),
+//             ),
+//             subtitle: Text.rich(
+//               TextSpan(
+//                 children: [
+//                   WidgetSpan(
+//                     child: Icon(
+//                       CupertinoIcons.arrow_2_squarepath,
+//                       color: Theme.of(context).colorScheme.tertiary,
+//                       size: 15,
+//                     ),
+//                   ),
+//                   TextSpan(
+//                     text: '  ' + retake.toString(),
+//                     style: TextStyle(
+//                         color: Theme.of(context).colorScheme.tertiary,
+//                         fontSize: 12),
+//                   ),
+//                   WidgetSpan(
+//                     child: Container(width: 20),
+//                   ),
+//                   WidgetSpan(
+//                     child: Image.asset(
+//                       'lib/assets/HelloMateIcon.png',
+//                       color: Theme.of(context).colorScheme.tertiary,
+//                       width: 14,
+//                       height: 14,
+//                     ),
+//                   ),
+//                   TextSpan(
+//                     text: '  ' + score.toString(),
+//                     style: TextStyle(
+//                         color: Theme.of(context).colorScheme.tertiary,
+//                         fontSize: 12),
+//                   ),
+//                   WidgetSpan(
+//                     child: Container(width: 20),
+//                   ),
+//                   WidgetSpan(
+//                     child: InkWell(
+//                       onTap: () {
+//                         HapticFeedback.heavyImpact();
+//                         print(title + ' ' + retake);
+//                         globals.retakeNumber = retake;
+//                         retakeTry();
+//                         onShare(context);
+//                         // globals.shareButton();
+//                         print(globals.retakeNumber);
+//                         print(title + ' ' + retake);
+//                       },
+//                       child: Icon(
+//                         CupertinoIcons.share,
+//                         color: Theme.of(context).colorScheme.tertiary,
+//                         size: 15,
+//                       ),
+//                     ),
+//                   ),
+//                   WidgetSpan(
+//                     child: Container(width: 20),
+//                   ),
+//                   // WidgetSpan(
+//                   //   child: InkWell(
+//                   //     onTap: () {
+//                   //       HapticFeedback.heavyImpact();
+//                   //       globals.textAgain = titleNumbers;
+//                   //       print(title);
+//                   //       sendText();
+//                   //     },
+//                   //     child: Icon(
+//                   //       CupertinoIcons.chat_bubble,
+//                   //       color: Theme.of(context).colorScheme.tertiary,
+//                   //       size: 15,
+//                   //     ),
+//                   //   ),
+//                   // ),
+//                 ],
+//               ),
+//             ),
+//             trailing: Text(
+//               getFormattedTrailing(trailing),
+//               style: TextStyle(
+//                   fontSize: 10.0,
+//                   color: Theme.of(context).colorScheme.tertiary),
+//             ),
+//             // code below works but for some reason it work
+//             // when you start the app.
+//             leading: profilePic != null && profilePic!.isNotEmpty
+//                 ? CircleAvatar(
+//                     backgroundImage: MemoryImage(base64Decode(profilePic!)),
+//                     radius: 23,
+//                   )
+//                 : const Icon(
+//                     Icons.account_circle_rounded,
+//                     size: 50,
+//                   ),
+//             // leading: globals.randomContact?.profilePic != null
+//             //     ? CircleAvatar(
+//             //         backgroundImage: MemoryImage(
+//             //             base64Decode(globals.randomContact!.profilePic!)),
+//             //         radius: 25,
+//             //       )
+//             //     : const Icon(
+//             //         Icons.account_circle_rounded,
+//             //         size: 50,
+//             //       ),
+//             iconColor: Theme.of(context).colorScheme.secondary,
+//             textColor: Theme.of(context).colorScheme.secondary,
+//           ),
+//         ),
+//       ],
 //     );
 //   }
 // }
