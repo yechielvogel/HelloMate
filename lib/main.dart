@@ -233,7 +233,7 @@ class _MyAppState extends State<MyApp> {
             HapticFeedback.heavyImpact();
             // rememer to remove the three lines below
             await getContacts();
-            print(globals.randomContact?.phoneNumber);
+            // print(globals.randomContact?.phoneNumber);
             // SharedPreferences prefs = await SharedPreferences.getInstance();
             // int savedScore = prefs.getInt('scoreCounter') ?? 0;
             // globals.scoreCounter = savedScore + 1;
