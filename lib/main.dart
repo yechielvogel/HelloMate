@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 // import 'dart:js';
 /// import 'package:HelloMate/Themes/DarkMode.dart';
 // import 'package:HelloMate/Themes/LightMode.dart';
@@ -20,13 +21,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 
 GlobalKey<_MyAppState> myAppKey = GlobalKey<_MyAppState>();
-void main() {
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Create your ThemeProvider instance
+  ThemeProvider themeProvider = ThemeProvider();
+  await themeProvider.loadSettings();
+
   runApp(
     ChangeNotifierProvider(
-      create: (context) => ThemeProvider(),
+      create: (context) => themeProvider,
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
-          // Set status bar icon colors based on dark mode and system settings
+          // Update status bar icon colors based on dark mode and system settings
           SystemChrome.setSystemUIOverlayStyle(
             _getSystemUIOverlayStyle(themeProvider),
           );
@@ -43,26 +51,42 @@ void main() {
       ),
     ),
   );
+
+  // Save settings when the app is closed
+  WidgetsBinding.instance?.addObserver(
+    AppLifecycleObserver(themeProvider: themeProvider),
+  );
 }
 
+class AppLifecycleObserver extends WidgetsBindingObserver {
+  final ThemeProvider themeProvider;
+
+  AppLifecycleObserver({required this.themeProvider});
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      themeProvider.saveSettings();
+    }
+  }
+}
+
+// add if statements for system switch if on and == dark the overlay should automaticly be dark...ect
 SystemUiOverlayStyle _getSystemUIOverlayStyle(ThemeProvider themeProvider) {
-  if (themeProvider.isSystem) {
-    // Use system settings
+  // For dark mode or system dark mode, use a light status bar
+  if (WidgetsBinding.instance?.window.platformBrightness == Brightness.dark ||
+      themeProvider.isDarkMode) {
     return SystemUiOverlayStyle(
-      statusBarBrightness:
-          themeProvider.isDarkMode ? Brightness.light : Brightness.dark,
-      statusBarIconBrightness:
-          themeProvider.isDarkMode ? Brightness.light : Brightness.dark,
-    );
-  } else {
-    // Use manual settings based on dark mode
-    return SystemUiOverlayStyle(
-      statusBarBrightness:
-          themeProvider.isDarkMode ? Brightness.dark : Brightness.light,
-      statusBarIconBrightness:
-          themeProvider.isDarkMode ? Brightness.light : Brightness.dark,
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
     );
   }
+
+  // For light mode or system light mode, use a dark status bar
+  return SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.dark,
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -267,8 +291,8 @@ class _MyAppState extends State<MyApp> {
           onPressed: () async {
             HapticFeedback.heavyImpact();
             // rememer to remove the three lines below
-            await getContacts();
-            print(globals.randomContact?.phoneNumber);
+            // await getContacts();
+            // print(globals.randomContact?.phoneNumber);
             // SharedPreferences prefs = await SharedPreferences.getInstance();
             // int savedScore = prefs.getInt('scoreCounter') ?? 0;
             // globals.scoreCounter = savedScore + 1;
@@ -497,6 +521,8 @@ class _MyWidgetState extends State<MyWidget> {
   // bool useDeviceSettings = false;
   @override
   Widget build(BuildContext context) {
+    // Provider.of<ThemeProvider>(context, listen: false).loadSettings();
+
     // final themeProvider = Provider.of<ThemeProvider>(context);
     // final themeData = useDeviceSettings
     //     ? Theme.of(context)
@@ -535,32 +561,41 @@ class _MyWidgetState extends State<MyWidget> {
                 ),
               ),
               Padding(
-                  padding:
-                      EdgeInsets.only(right: 16, left: 16), // Apply right inset
-                  child: Consumer<ThemeProvider>(
-                    builder: (context, themeProvider, child) {
-                      bool isSystemDarkMode =
-                          themeProvider.isSystem && themeProvider.isDarkMode;
-                      bool isDarkModeOn =
-                          themeProvider.isDarkMode || isSystemDarkMode;
+                padding: EdgeInsets.only(right: 16, left: 16),
+                child: Consumer<ThemeProvider>(
+                  builder: (context, themeProvider, child) {
+                    bool systemToggleDark =
+                        themeProvider.isSystem && themeProvider.isDarkMode;
+                    bool isDarkModeOn =
+                        themeProvider.isDarkMode || systemToggleDark;
 
-                      return CupertinoSwitch(
-                        value: isDarkModeOn,
-                        activeColor: CupertinoColors.systemYellow,
-                        onChanged: (value) {
-                          final provider = Provider.of<ThemeProvider>(context,
-                              listen: false);
+                    return CupertinoSwitch(
+                      value: isDarkModeOn,
+                      activeColor: CupertinoColors.systemYellow,
+                      onChanged: (value) async {
+                        // await themeProvider.saveSettings();
+                        final provider =
+                            Provider.of<ThemeProvider>(context, listen: false);
+                        provider.toggleSystem(value);
+                        // final provider =
+                        //     Provider.of<ThemeProvider>(context, listen: false);
 
-                          if (isSystemDarkMode) {
-                            // If system switch is on and system theme is dark, do nothing
-                            return;
-                          }
-
+                        if (systemToggleDark) {
+                          // If system switch is on, allow the user to manually toggle dark mode
+                          // but do not turn off system switch
                           provider.toggleTheme(value);
-                        },
-                      );
-                    },
-                  ))
+                          provider.toggleSystem(false);
+                        } else {
+                          // If system switch is off, turn on/off dark mode and turn off system switch
+                          provider.toggleTheme(value);
+                          provider.toggleSystem(false);
+                          await provider.saveSettings();
+                        }
+                      },
+                    );
+                  },
+                ),
+              )
             ],
           ),
           Container(),
@@ -586,10 +621,14 @@ class _MyWidgetState extends State<MyWidget> {
                   return CupertinoSwitch(
                     value: themeProvider.isSystem,
                     activeColor: CupertinoColors.systemYellow,
-                    onChanged: (bool? value) {
+                    onChanged: (value) async {
+                      // await themeProvider.saveSettings();
                       final provider =
                           Provider.of<ThemeProvider>(context, listen: false);
-                      provider.toggleSystem(value ?? false);
+                      // final provider =
+                      //     Provider.of<ThemeProvider>(context, listen: false);
+                      provider.toggleSystem(value);
+                      await provider.saveSettings();
                     },
                   );
                 }),

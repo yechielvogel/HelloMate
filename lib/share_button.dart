@@ -11,7 +11,7 @@ Future<void> onShare(BuildContext context) async {
     final rect = Rect.fromPoints(topLeft, bottomRight);
 
     await Share.share(
-      'I used HelloMate to reach out to a old friend! it took me ${globals.retakeNumber}${globals.textAgain}! I challenge you https://apps.apple.com/gb/app/bereal-your-friends-for-real/id1459645446',
+      'I used HelloMate to reach out to a old friend! it took me ${globals.retakeNumber}${globals.textAgain}! I challenge you https://apps.apple.com/gb/app//idid6449648643',
       subject: 'HelloMate',
       sharePositionOrigin: rect,
     );
@@ -25,3 +25,4 @@ void retakeTry() {
     globals.textAgain = ' trys';
   }
 }
+// https://itunes.apple.com/idhttps://itunes.apple.com/id6449648643
