@@ -1,31 +1,23 @@
 import 'dart:convert';
-import 'dart:ui';
-// import 'dart:js';
-/// import 'package:HelloMate/Themes/DarkMode.dart';
-// import 'package:HelloMate/Themes/LightMode.dart';
 import 'package:HelloMate/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'globals.dart' as globals;
 import 'getcontacts.dart';
-// import 'globals.dart';
 import 'share_button.dart';
-// import 'package:share_plus/share_plus.dart';
-// import 'get_contacts_test.dart';
-// import 'globals.dart';
 import 'sendtext.dart';
 import 'message_bridge.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
 
+// ignore: library_private_types_in_public_api
 GlobalKey<_MyAppState> myAppKey = GlobalKey<_MyAppState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Create your ThemeProvider instance
   ThemeProvider themeProvider = ThemeProvider();
   await themeProvider.loadSettings();
 
@@ -34,7 +26,6 @@ void main() async {
       create: (context) => themeProvider,
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
-          // Update status bar icon colors based on dark mode and system settings
           SystemChrome.setSystemUIOverlayStyle(
             _getSystemUIOverlayStyle(themeProvider),
           );
@@ -52,8 +43,7 @@ void main() async {
     ),
   );
 
-  // Save settings when the app is closed
-  WidgetsBinding.instance?.addObserver(
+  WidgetsBinding.instance.addObserver(
     AppLifecycleObserver(themeProvider: themeProvider),
   );
 }
@@ -71,19 +61,16 @@ class AppLifecycleObserver extends WidgetsBindingObserver {
   }
 }
 
-// add if statements for system switch if on and == dark the overlay should automaticly be dark...ect
 SystemUiOverlayStyle _getSystemUIOverlayStyle(ThemeProvider themeProvider) {
-  // For dark mode or system dark mode, use a light status bar
-  if (WidgetsBinding.instance?.window.platformBrightness == Brightness.dark ||
+  if (WidgetsBinding.instance.window.platformBrightness == Brightness.dark ||
       themeProvider.isDarkMode) {
-    return SystemUiOverlayStyle(
+    return const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
     );
   }
 
-  // For light mode or system light mode, use a dark status bar
-  return SystemUiOverlayStyle(
+  return const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
   );
@@ -98,6 +85,10 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  bool isTileListEmpty() {
+    return tileWidgets.isEmpty;
+  }
+
   List<TileWidget> tileWidgets = [];
 
   @override
@@ -170,13 +161,6 @@ class _MyAppState extends State<MyApp> {
 // make trailing actuall day if today then today if yesterday...
 
   Future<void> addTileWidget() async {
-    // DateTime now = DateTime.now();
-    // String today = DateFormat('dd/MM/yyy').format(now);
-
-    // print(
-    //   globals.randomContactName,
-    // );
-    // print(globals.randomContactNumber);
     setState(() {
       tileWidgets.insert(
           0,
@@ -187,9 +171,6 @@ class _MyAppState extends State<MyApp> {
               score: globals.scoreCounter.toString(),
               trailing: globals.now.toString(),
               profilePic: globals.randomContact?.profilePic));
-
-      // tiledate:
-      // var tiledate = today;
     });
   }
 
@@ -271,9 +252,7 @@ class _MyAppState extends State<MyApp> {
               padding: const EdgeInsets.all(0),
               child: ListView(
                 padding: const EdgeInsets.all(10),
-                children: [
-                  ...tileWidgets,
-                ],
+                children: isTileListEmpty() ? [EmptyListWidget()] : tileWidgets,
               ),
             ),
           ),
@@ -299,6 +278,8 @@ class _MyAppState extends State<MyApp> {
             // await updateScoreCounter(globals.scoreCounter!);
             // await addTileWidget();
             // await saveTileWidgets();
+            //
+            await getContacts();
             String resultCode = await MessageBridge.sendmessage();
             if (resultCode == '1') {
               SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -329,10 +310,6 @@ class _MyAppState extends State<MyApp> {
 
   bool isPressed = false;
   bool notPressed = false;
-
-  //  void setState(() {
-  //   lightMode = true;
-  // });
 }
 
 class TileWidget extends StatelessWidget {
@@ -516,21 +493,11 @@ class MyWidget extends StatefulWidget {
 }
 
 class _MyWidgetState extends State<MyWidget> {
-  // the bool's and final below is a test for a dark mode could remove.
-  // bool isDarkMode = false;
-  // bool useDeviceSettings = false;
   @override
   Widget build(BuildContext context) {
-    // Provider.of<ThemeProvider>(context, listen: false).loadSettings();
-
-    // final themeProvider = Provider.of<ThemeProvider>(context);
-    // final themeData = useDeviceSettings
-    //     ? Theme.of(context)
-    //     : (isDarkMode ? darkTheme : Theme.of(context));
     return Container(
       decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.primary,
-          // Theme.of(context).colorScheme.primary,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(20.0),
             topRight: Radius.circular(20.0),
@@ -550,7 +517,7 @@ class _MyWidgetState extends State<MyWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Padding(
-                padding: EdgeInsets.only(left: 16), // Apply left inset
+                padding: EdgeInsets.only(left: 16),
                 child: Text(
                   'Dark mode',
                   style: TextStyle(
@@ -573,20 +540,15 @@ class _MyWidgetState extends State<MyWidget> {
                       value: isDarkModeOn,
                       activeColor: CupertinoColors.systemYellow,
                       onChanged: (value) async {
-                        // await themeProvider.saveSettings();
+                        //  await Future.delayed(
+                        //       const Duration(milliseconds: 500));
                         final provider =
                             Provider.of<ThemeProvider>(context, listen: false);
                         provider.toggleSystem(value);
-                        // final provider =
-                        //     Provider.of<ThemeProvider>(context, listen: false);
-
                         if (systemToggleDark) {
-                          // If system switch is on, allow the user to manually toggle dark mode
-                          // but do not turn off system switch
                           provider.toggleTheme(value);
                           provider.toggleSystem(false);
                         } else {
-                          // If system switch is off, turn on/off dark mode and turn off system switch
                           provider.toggleTheme(value);
                           provider.toggleSystem(false);
                           await provider.saveSettings();
@@ -622,11 +584,8 @@ class _MyWidgetState extends State<MyWidget> {
                     value: themeProvider.isSystem,
                     activeColor: CupertinoColors.systemYellow,
                     onChanged: (value) async {
-                      // await themeProvider.saveSettings();
                       final provider =
                           Provider.of<ThemeProvider>(context, listen: false);
-                      // final provider =
-                      //     Provider.of<ThemeProvider>(context, listen: false);
                       provider.toggleSystem(value);
                       await provider.saveSettings();
                     },
@@ -635,6 +594,54 @@ class _MyWidgetState extends State<MyWidget> {
               )
             ],
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class EmptyListWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            height: 80,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Text(
+                // "You don't have no hellos, tap the yellow button to begin.",
+                // "Welcome to HelloMate, tap the yellow button to begin, your hellos will appear here.",
+                "Tap the button below to begin. your 'Hellos' will appear here.",
+                style: TextStyle(
+                  fontSize: 21,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 20), // Add some space between the two containers
+          // Container(
+          //   // Your second container here
+          //   height: 570,
+          //   decoration: BoxDecoration(
+          //     borderRadius: BorderRadius.circular(20),
+          //     color: Theme.of(context).colorScheme.primary,
+          //   ),
+          //   // child: Center(
+          //   //   child: Image.asset(
+          //   //     'lib/assets/StartScreenShotWhite.png',
+          //   //     height: 500,
+          //   //   ),
+          //   // ),
+          // ),
         ],
       ),
     );

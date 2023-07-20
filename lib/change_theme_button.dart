@@ -3,6 +3,7 @@ import 'theme_provider.dart';
 import 'package:provider/provider.dart';
 
 class ChangeThemeButtonWidget extends StatelessWidget {
+  // ignore: use_key_in_widget_constructors
   const ChangeThemeButtonWidget({Key? key});
 
   @override

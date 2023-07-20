@@ -36,5 +36,6 @@ void updateThemeMode(Function setState) {
 }
 
 Future<void> shareButton() async {
+  // ignore: avoid_print
   print(randomContactName);
 }

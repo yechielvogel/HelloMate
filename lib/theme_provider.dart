@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ThemeProvider with WidgetsBindingObserver, ChangeNotifier {
   SystemUiOverlayStyle _getSystemUIOverlayStyle() {
     if (isDarkMode ||
-        WidgetsBinding.instance?.window.platformBrightness == Brightness.dark) {
+        WidgetsBinding.instance.window.platformBrightness == Brightness.dark) {
       return SystemUiOverlayStyle.light;
     } else {
       return SystemUiOverlayStyle.dark;
@@ -81,7 +81,7 @@ class ThemeProvider with WidgetsBindingObserver, ChangeNotifier {
     isSystem = isOn;
     if (isSystem) {
       // Use system settings
-      final brightness = WidgetsBinding.instance?.window.platformBrightness;
+      final brightness = WidgetsBinding.instance.window.platformBrightness;
       WidgetsBinding.instance.addObserver(this);
 
       if (brightness == Brightness.dark) {
@@ -89,7 +89,7 @@ class ThemeProvider with WidgetsBindingObserver, ChangeNotifier {
         WidgetsBinding.instance.addObserver(this);
         if (isDarkMode &&
             isSystem &&
-            WidgetsBinding.instance?.window.platformBrightness ==
+            WidgetsBinding.instance.window.platformBrightness ==
                 Brightness.light) {
           themeMode = ThemeMode.light;
           WidgetsBinding.instance.addObserver(this);
@@ -123,7 +123,7 @@ class ThemeProvider with WidgetsBindingObserver, ChangeNotifier {
 
   @override
   void dispose() {
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 }
