@@ -1,10 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:HelloMate/theme_provider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'globals.dart' as globals;
 import 'getcontacts.dart';
 import 'share_button.dart';
+// import 'package:flutter_sms/flutter_sms.dart';
+// if (TargetPlatform.iOS) 'package:unsupported_io/flutter_sms.dart';
 import 'sendtext.dart';
 import 'message_bridge.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,7 +17,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 
-// ignore: library_private_types_in_public_api
 GlobalKey<_MyAppState> myAppKey = GlobalKey<_MyAppState>();
 
 void main() async {
@@ -42,7 +45,8 @@ void main() async {
       ),
     ),
   );
-
+// MyThemes.lightTheme,
+// MyThemes.darkTheme,
   WidgetsBinding.instance.addObserver(
     AppLifecycleObserver(themeProvider: themeProvider),
   );
@@ -200,7 +204,9 @@ class _MyAppState extends State<MyApp> {
                 floating: true,
                 elevation: 0,
                 backgroundColor: Theme.of(context).colorScheme.background,
+                centerTitle: true,
                 title: SizedBox(
+                  // change title to leading to make logo on the left.
                   width: 40,
                   height: 40,
                   child: Center(
@@ -270,30 +276,53 @@ class _MyAppState extends State<MyApp> {
           onPressed: () async {
             HapticFeedback.heavyImpact();
             // rememer to remove the three lines below
-            // await getContacts();
-            // print(globals.randomContact?.phoneNumber);
+            await getContacts();
             // SharedPreferences prefs = await SharedPreferences.getInstance();
             // int savedScore = prefs.getInt('scoreCounter') ?? 0;
             // globals.scoreCounter = savedScore + 1;
             // await updateScoreCounter(globals.scoreCounter!);
             // await addTileWidget();
             // await saveTileWidgets();
-            //
-            await getContacts();
-            String resultCode = await MessageBridge.sendmessage();
-            if (resultCode == '1') {
+            // loadTileWidgets();
+            if (Platform.isIOS) {
+              print('ios');
+              String resultCode = await MessageBridge.sendmessage();
+              if (resultCode == '1') {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                int savedScore = prefs.getInt('scoreCounter') ?? 0;
+                globals.scoreCounter = savedScore + 1;
+                await updateScoreCounter(globals.scoreCounter!);
+                await addTileWidget();
+                await saveTileWidgets();
+                loadTileWidgets();
+                globals.retakeCounter = 1;
+                print('retake counter: ' + globals.retakeCounter.toString());
+                print('score counter: ' + globals.scoreCounter.toString());
+              } else if (resultCode == '3') {
+                globals.retakeCounter = (globals.retakeCounter ?? 0) + 1;
+                print(globals.retakeCounter);
+              }
+            } else if (Platform.isAndroid) {
+              print('android');
+              print(globals.randomContact?.phoneNumber);
               SharedPreferences prefs = await SharedPreferences.getInstance();
               int savedScore = prefs.getInt('scoreCounter') ?? 0;
               globals.scoreCounter = savedScore + 1;
               await updateScoreCounter(globals.scoreCounter!);
               await addTileWidget();
               await saveTileWidgets();
-              globals.retakeCounter = 1;
-              print('retake counter: ' + globals.retakeCounter.toString());
-              print('score counter: ' + globals.scoreCounter.toString());
-            } else if (resultCode == '3') {
-              globals.retakeCounter = (globals.retakeCounter ?? 0) + 1;
-              print(globals.retakeCounter);
+              loadTileWidgets();
+              //   // the code below does not work yet
+            } else {
+              print('VM');
+              print(globals.randomContact?.phoneNumber);
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              int savedScore = prefs.getInt('scoreCounter') ?? 0;
+              globals.scoreCounter = savedScore + 1;
+              await updateScoreCounter(globals.scoreCounter!);
+              await addTileWidget();
+              await saveTileWidgets();
+              loadTileWidgets();
             }
           },
           child: const Icon(CupertinoIcons.add),
@@ -603,6 +632,8 @@ class _MyWidgetState extends State<MyWidget> {
 class EmptyListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // bool isIOS = Theme.of(context).platform == TargetPlatform.iOS;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

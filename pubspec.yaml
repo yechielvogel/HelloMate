@@ -33,13 +33,17 @@ dependencies:
   contacts_service: ^0.6.3
   permission_handler: ^10.2.0
   shared_preferences: ^2.1.1
-  flutter_sms: ^2.3.3
   intl: ^0.17.0
   provider: ^6.0.1
   fast_contacts: ^3.0.3
   share_plus: ^7.0.2
+  # device_info: ^2.0.0
+  # flutter_sms: ^2.3.3
+  flutter_sms:
+    path: /Users/macbookpro/HelloMate/flutter_sms-master
+
+
   # flutter_contacts: ^1.1.6
-  # sms_advanced: ^1.0.2
 
 
   # The following adds the Cupertino Icons font to your application.
