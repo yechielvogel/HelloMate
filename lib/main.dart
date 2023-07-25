@@ -1,12 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
+// import 'package:HelloMate/sendsms_android.dart';
 import 'package:HelloMate/theme_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'androidsmsview.dart';
 import 'globals.dart' as globals;
 import 'getcontacts.dart';
 import 'share_button.dart';
+// import 'sendsms_android.dart';
+// import 'package:device_info/device_info.dart';
+// import 'package:device_info_plus/device_info_plus.dart';
 // import 'package:flutter_sms/flutter_sms.dart';
 // if (TargetPlatform.iOS) 'package:unsupported_io/flutter_sms.dart';
 import 'sendtext.dart';
@@ -23,7 +28,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   ThemeProvider themeProvider = ThemeProvider();
   await themeProvider.loadSettings();
-
   runApp(
     ChangeNotifierProvider(
       create: (context) => themeProvider,
@@ -190,6 +194,19 @@ class _MyAppState extends State<MyApp> {
     saveScoreCounter(newScore);
   }
 
+  void sendandsaveandroid() async {
+    print('android');
+    print(globals.randomContact?.phoneNumber);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int savedScore = prefs.getInt('scoreCounter') ?? 0;
+    globals.scoreCounter = savedScore + 1;
+    await updateScoreCounter(globals.scoreCounter!);
+    await addTileWidget();
+    await saveTileWidgets();
+    loadTileWidgets();
+    globals.smsandroid = '0';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -253,9 +270,14 @@ class _MyAppState extends State<MyApp> {
                 ],
               ),
             ],
-            body: Container(
-              color: Theme.of(context).colorScheme.background,
-              padding: const EdgeInsets.all(0),
+            //  body: Container(
+            //   color: Theme.of(context).colorScheme.background,
+            //   padding: const EdgeInsets.all(0),
+            body: NotificationListener<OverscrollIndicatorNotification>(
+              onNotification: (notification) {
+                notification.disallowGlow();
+                return false;
+              },
               child: ListView(
                 padding: const EdgeInsets.all(10),
                 children: isTileListEmpty() ? [EmptyListWidget()] : tileWidgets,
@@ -284,6 +306,11 @@ class _MyAppState extends State<MyApp> {
             // await addTileWidget();
             // await saveTileWidgets();
             // loadTileWidgets();
+            // DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+//            var iosInfo = await deviceInfo.iosInfo;
+// var androidInfo = await deviceInfo.androidInfo;
+
+// bool isRealDevice = iosInfo.isPhysicalDevice || androidInfo.isPhysicalDevice;
             if (Platform.isIOS) {
               print('ios');
               String resultCode = await MessageBridge.sendmessage();
@@ -303,26 +330,42 @@ class _MyAppState extends State<MyApp> {
                 print(globals.retakeCounter);
               }
             } else if (Platform.isAndroid) {
-              print('android');
-              print(globals.randomContact?.phoneNumber);
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              int savedScore = prefs.getInt('scoreCounter') ?? 0;
-              globals.scoreCounter = savedScore + 1;
-              await updateScoreCounter(globals.scoreCounter!);
-              await addTileWidget();
-              await saveTileWidgets();
-              loadTileWidgets();
+              Completer<void> _completer = Completer<void>();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => smsAndroidView(completer: _completer),
+                ),
+              );
+              await _completer.future;
+              if (globals.smsandroid == '1') {
+                print('android');
+                print(globals.randomContact?.phoneNumber);
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                int savedScore = prefs.getInt('scoreCounter') ?? 0;
+                globals.scoreCounter = savedScore + 1;
+                await updateScoreCounter(globals.scoreCounter!);
+                await addTileWidget();
+                await saveTileWidgets();
+                loadTileWidgets();
+                globals.retakeCounter = 1;
+                globals.smsandroid = '0';
+              } else if (globals.smsandroid == '2') {
+                globals.retakeCounter = (globals.retakeCounter ?? 0) + 1;
+                print(globals.retakeCounter);
+              }
+
               //   // the code below does not work yet
-            } else {
-              print('VM');
-              print(globals.randomContact?.phoneNumber);
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              int savedScore = prefs.getInt('scoreCounter') ?? 0;
-              globals.scoreCounter = savedScore + 1;
-              await updateScoreCounter(globals.scoreCounter!);
-              await addTileWidget();
-              await saveTileWidgets();
-              loadTileWidgets();
+              // } else {
+              //   print('VM');
+              //   print(globals.randomContact?.phoneNumber);
+              //   SharedPreferences prefs = await SharedPreferences.getInstance();
+              //   int savedScore = prefs.getInt('scoreCounter') ?? 0;
+              //   globals.scoreCounter = savedScore + 1;
+              //   await updateScoreCounter(globals.scoreCounter!);
+              //   await addTileWidget();
+              //   await saveTileWidgets();
+              //   loadTileWidgets();
             }
           },
           child: const Icon(CupertinoIcons.add),
@@ -567,7 +610,7 @@ class _MyWidgetState extends State<MyWidget> {
 
                     return CupertinoSwitch(
                       value: isDarkModeOn,
-                      activeColor: CupertinoColors.systemYellow,
+                      activeColor: Colors.yellow,
                       onChanged: (value) async {
                         //  await Future.delayed(
                         //       const Duration(milliseconds: 500));
@@ -611,7 +654,7 @@ class _MyWidgetState extends State<MyWidget> {
                     builder: (context, themeProvider, child) {
                   return CupertinoSwitch(
                     value: themeProvider.isSystem,
-                    activeColor: CupertinoColors.systemYellow,
+                    activeColor: Colors.yellow,
                     onChanged: (value) async {
                       final provider =
                           Provider.of<ThemeProvider>(context, listen: false);
