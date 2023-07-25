@@ -44,11 +44,9 @@ class ThemeProvider with WidgetsBindingObserver, ChangeNotifier {
     if (isSystem) {
       final brightness = WidgetsBinding.instance.window.platformBrightness;
       if (brightness == Brightness.dark) {
-        // Set the theme to dark mode when device is in dark mode
         themeMode = ThemeMode.dark;
         SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
       } else if (brightness == Brightness.light) {
-        // Set the theme to light mode when device is in light mode
         themeMode = ThemeMode.light;
         SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
       }
@@ -69,7 +67,6 @@ class ThemeProvider with WidgetsBindingObserver, ChangeNotifier {
     themeMode = isOn ? ThemeMode.dark : ThemeMode.light;
     notifyListeners();
 
-    // Update status bar icon colors
     SystemChrome.setSystemUIOverlayStyle(
       isDarkMode ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
     );
@@ -80,7 +77,6 @@ class ThemeProvider with WidgetsBindingObserver, ChangeNotifier {
 
     isSystem = isOn;
     if (isSystem) {
-      // Use system settings
       final brightness = WidgetsBinding.instance.window.platformBrightness;
       WidgetsBinding.instance.addObserver(this);
 
@@ -95,13 +91,10 @@ class ThemeProvider with WidgetsBindingObserver, ChangeNotifier {
           WidgetsBinding.instance.addObserver(this);
         }
 
-        // Set the theme to dark mode when device is in dark mode
-
         themeMode = ThemeMode.dark;
       } else {
         WidgetsBinding.instance.addObserver(this);
 
-        // Set the theme to light mode when device is in light mode
         themeMode = ThemeMode.light;
       }
 
@@ -111,7 +104,6 @@ class ThemeProvider with WidgetsBindingObserver, ChangeNotifier {
     } else {
       WidgetsBinding.instance.addObserver(this);
 
-      // Use manual settings
       themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
       SystemChrome.setSystemUIOverlayStyle(
         isDarkMode ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,

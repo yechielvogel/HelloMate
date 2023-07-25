@@ -17,7 +17,7 @@ String now = DateFormat('dd/MM/yyyy').format(DateTime.now());
 bool systemSettings = false;
 String? textAgain;
 String? retakeNumber;
-
+String? smsandroid = '0';
 bool shouldAnimateBottomSheet = true;
 bool isDarkModeEnabled = false;
 List<String> shareButtonList = [];

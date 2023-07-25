@@ -7,7 +7,7 @@ import 'dart:math';
 class ContactInfo {
   String name;
   String phoneNumber;
-  String? profilePic; // Added profilePic field
+  String? profilePic;
 
   ContactInfo({required this.name, required this.phoneNumber, this.profilePic});
 }
@@ -30,7 +30,7 @@ Future<ContactInfo> getRandomContact() async {
 
   String contactName = randomContact.displayName ?? '';
   String contactPhoneNumber = '';
-  String? contactProfilePic; // Added contactProfilePic variable
+  String? contactProfilePic;
 
   if (randomContact.phones != null && randomContact.phones!.isNotEmpty) {
     contactPhoneNumber = randomContact.phones!.first.value ?? '';

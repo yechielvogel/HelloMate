@@ -25,7 +25,7 @@ class ChangeThemeButtonWidget extends StatelessWidget {
             final provider = Provider.of<ThemeProvider>(context, listen: false);
             provider.toggleSystem(value);
           },
-          activeColor: Colors.blue, // Customize the active color if desired
+          activeColor: Colors.blue,
         ),
       ],
     );

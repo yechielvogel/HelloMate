@@ -1,4 +1,6 @@
 PODS:
+  - background_sms (0.0.1):
+    - Flutter
   - contacts_service (0.2.2):
     - Flutter
   - fast_contacts (0.0.1):
@@ -16,10 +18,13 @@ PODS:
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
+  - telephony (0.0.1):
+    - Flutter
   - url_launcher_ios (0.0.1):
     - Flutter
 
 DEPENDENCIES:
+  - background_sms (from `.symlinks/plugins/background_sms/ios`)
   - contacts_service (from `.symlinks/plugins/contacts_service/ios`)
   - fast_contacts (from `.symlinks/plugins/fast_contacts/ios`)
   - Flutter (from `Flutter`)
@@ -28,9 +33,12 @@ DEPENDENCIES:
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
+  - telephony (from `.symlinks/plugins/telephony/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
 EXTERNAL SOURCES:
+  background_sms:
+    :path: ".symlinks/plugins/background_sms/ios"
   contacts_service:
     :path: ".symlinks/plugins/contacts_service/ios"
   fast_contacts:
@@ -47,10 +55,13 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/share_plus/ios"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
+  telephony:
+    :path: ".symlinks/plugins/telephony/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
+  background_sms: ead2469d0ef3b811cf68bc09670c38cf80b13a6e
   contacts_service: 849e1f84281804c8bfbec1b4c3eedcb23c5d3eca
   fast_contacts: d5f0da976a40f8fd07a9ff730c2e9bee8c3898dd
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
@@ -59,6 +70,7 @@ SPEC CHECKSUMS:
   permission_handler_apple: 44366e37eaf29454a1e7b1b7d736c2cceaeb17ce
   share_plus: 599aa54e4ea31d4b4c0e9c911bcc26c55e791028
   shared_preferences_foundation: e2dae3258e06f44cc55f49d42024fd8dd03c590c
+  telephony: c41768fae9fb5495781b05a72004106ca33ec777
   url_launcher_ios: 08a3dfac5fb39e8759aeb0abbd5d9480f30fc8b4
 
 PODFILE CHECKSUM: 70d9d25280d0dd177a5f637cdb0f0b0b12c6a189
