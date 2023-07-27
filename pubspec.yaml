@@ -40,7 +40,7 @@ dependencies:
   background_sms: ^0.0.1
   telephony: ^0.2.0
   android_intent: ^2.0.0
-
+  flutter_animate: ^4.2.0+1
   # device_info_plus: ^9.0.1
   # sms_advanced:
   #   path: //Users/macbookpro/HelloMate/lib/sms_advanced

@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
+import 'package:flutter_animate/flutter_animate.dart';
 // import 'package:HelloMate/sendsms_android.dart';
 import 'package:HelloMate/theme_provider.dart';
 import 'package:flutter/foundation.dart';
@@ -38,6 +40,7 @@ void main() async {
           );
 
           return MaterialApp(
+            debugShowCheckedModeBanner: false,
             themeMode: themeProvider.themeMode,
             theme: MyThemes.lightTheme,
             darkTheme: MyThemes.darkTheme,
@@ -227,12 +230,7 @@ class _MyAppState extends State<MyApp> {
                   width: 40,
                   height: 40,
                   child: Center(
-                    child: Image.asset(
-                      'lib/assets/HelloMateIcon.png',
-                      width: 40,
-                      height: 40,
-                      color: Colors.yellow,
-                    ),
+                    child: WavingHandIcon(),
                   ),
                 ),
                 actions: <Widget>[
@@ -299,13 +297,13 @@ class _MyAppState extends State<MyApp> {
             HapticFeedback.heavyImpact();
             // rememer to remove the three lines below
             await getContacts();
-            // SharedPreferences prefs = await SharedPreferences.getInstance();
-            // int savedScore = prefs.getInt('scoreCounter') ?? 0;
-            // globals.scoreCounter = savedScore + 1;
-            // await updateScoreCounter(globals.scoreCounter!);
-            // await addTileWidget();
-            // await saveTileWidgets();
-            // loadTileWidgets();
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            int savedScore = prefs.getInt('scoreCounter') ?? 0;
+            globals.scoreCounter = savedScore + 1;
+            await updateScoreCounter(globals.scoreCounter!);
+            await addTileWidget();
+            await saveTileWidgets();
+            loadTileWidgets();
             // DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 //            var iosInfo = await deviceInfo.iosInfo;
 // var androidInfo = await deviceInfo.androidInfo;
@@ -717,6 +715,66 @@ class EmptyListWidget extends StatelessWidget {
           //   // ),
           // ),
         ],
+      ),
+    );
+  }
+}
+
+class WavingHandIcon extends StatefulWidget {
+  @override
+  _WavingHandIconState createState() => _WavingHandIconState();
+}
+
+class _WavingHandIconState extends State<WavingHandIcon>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  double _rotationValue = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1000), // Adjust the duration as needed
+    );
+
+    _controller.addListener(() {
+      setState(() {
+        _rotationValue = _controller.value * 2 * pi; // Full wave (2*pi)
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _startWavingAnimation() {
+    _controller.reset();
+    _controller.forward();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _startWavingAnimation,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return Transform.rotate(
+            angle: sin(_controller.value * pi * 2) *
+                pi /
+                8, // Adjust the multiplier for a larger/smaller wave
+            child: Image.asset(
+              'lib/assets/HelloMateIcon.png',
+              width: 40,
+              height: 40,
+              color: Colors.yellow,
+            ),
+          );
+        },
       ),
     );
   }
