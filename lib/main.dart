@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'package:flutter_animate/flutter_animate.dart';
+// import 'package:flutter_animate/flutter_animate.dart';
 // import 'package:HelloMate/sendsms_android.dart';
 import 'package:HelloMate/theme_provider.dart';
-import 'package:flutter/foundation.dart';
+// import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'androidsmsview.dart';
 import 'globals.dart' as globals;
@@ -295,15 +296,20 @@ class _MyAppState extends State<MyApp> {
           elevation: 5,
           onPressed: () async {
             HapticFeedback.heavyImpact();
-            // rememer to remove the three lines below
+            PermissionStatus status = await Permission.contacts.status;
+            if (status.isDenied) {
+              status = await Permission.contacts.request();
+            }
             await getContacts();
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            int savedScore = prefs.getInt('scoreCounter') ?? 0;
-            globals.scoreCounter = savedScore + 1;
-            await updateScoreCounter(globals.scoreCounter!);
-            await addTileWidget();
-            await saveTileWidgets();
-            loadTileWidgets();
+            // rememer to remove the lines below
+            // SharedPreferences prefs = await SharedPreferences.getInstance();
+            // int savedScore = prefs.getInt('scoreCounter') ?? 0;
+            // globals.scoreCounter = savedScore + 1;
+            // await updateScoreCounter(globals.scoreCounter!);
+            // await addTileWidget();
+            // await saveTileWidgets();
+            // loadTileWidgets();
+            // untill here.
             // DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 //            var iosInfo = await deviceInfo.iosInfo;
 // var androidInfo = await deviceInfo.androidInfo;
@@ -501,6 +507,7 @@ class TileWidget extends StatelessWidget {
                 ),
                 Container(
                   width: 25,
+                  height: 20,
                   padding: EdgeInsets.all(0),
                   child: InkWell(
                     onTap: () {
@@ -728,6 +735,7 @@ class WavingHandIcon extends StatefulWidget {
 class _WavingHandIconState extends State<WavingHandIcon>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  // ignore: unused_field
   double _rotationValue = 0.0;
 
   @override
@@ -735,12 +743,12 @@ class _WavingHandIconState extends State<WavingHandIcon>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1000), // Adjust the duration as needed
+      duration: Duration(milliseconds: 500), // Adjust the duration as needed
     );
 
     _controller.addListener(() {
       setState(() {
-        _rotationValue = _controller.value * 2 * pi; // Full wave (2*pi)
+        _rotationValue = _controller.value * 1 * pi; // Full wave (2*pi)
       });
     });
   }
@@ -764,9 +772,9 @@ class _WavingHandIconState extends State<WavingHandIcon>
         animation: _controller,
         builder: (context, child) {
           return Transform.rotate(
-            angle: sin(_controller.value * pi * 2) *
+            angle: sin(_controller.value * pi * 3) *
                 pi /
-                8, // Adjust the multiplier for a larger/smaller wave
+                7, // Adjust the multiplier for a larger/smaller wave
             child: Image.asset(
               'lib/assets/HelloMateIcon.png',
               width: 40,
@@ -779,3 +787,7 @@ class _WavingHandIconState extends State<WavingHandIcon>
     );
   }
 }
+// when you start the app for the first time the splash should be thememode light
+// because thats what the app starts with and then every time the user changes the
+// dark mode or light mode the splash page should also update to the correct color 
+// the dificuilt part will be if user changes the theme out side of app not sure.

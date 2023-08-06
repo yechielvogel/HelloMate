@@ -1,5 +1,6 @@
 // import 'package:flutter/material.dart';
 import 'dart:convert';
+// import 'dart:js_interop';
 
 import 'package:contacts_service/contacts_service.dart';
 import 'dart:math';
@@ -16,6 +17,7 @@ Future<ContactInfo> getRandomContact() async {
   Iterable<Contact> contacts = await ContactsService.getContacts(
     withThumbnails: true,
   );
+
   List<Contact> contactList = contacts.toList();
 
   if (contactList.isEmpty) {
@@ -39,6 +41,11 @@ Future<ContactInfo> getRandomContact() async {
   if (randomContact.avatar != null && randomContact.avatar!.isNotEmpty) {
     contactProfilePic = base64Encode(randomContact.avatar!);
   }
+  // this code is a test to see if i could remove any contacts with only first name.
+  // if (randomContact.familyName!.isEmpty) {
+  //   contactList.removeLast();
+  //   print('nolastname');
+  // }
 
   return ContactInfo(
     name: contactName,

@@ -1,6 +1,6 @@
 import 'dart:async';
-
-import 'package:HelloMate/sendsms_android.dart';
+import 'smsandroidT.dart';
+// import 'package:HelloMate/sendsms_android.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
@@ -29,13 +29,17 @@ class _smsAndroidViewState extends State<smsAndroidView> {
             topRight: Radius.circular(10.0),
           ),
         ),
-        title: Text("New Hello"),
+        title: Text("New Hello",
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
         centerTitle: true,
         shadowColor: Colors.transparent,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 15.0, top: 23.0),
             child: InkWell(
+              splashColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              highlightColor: Colors.transparent,
               onTap: () {
                 smsandroid = "2";
                 print(smsandroid);
@@ -97,8 +101,17 @@ class _smsAndroidViewState extends State<smsAndroidView> {
                 Expanded(
                     child: TextField(
                   maxLines: null,
+                  cursorColor: Theme.of(context).colorScheme.secondary,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey, width: 2.0),
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey, width: 1.0),
                       borderRadius: BorderRadius.circular(20.0),
                     ),
                     contentPadding:
@@ -116,7 +129,8 @@ class _smsAndroidViewState extends State<smsAndroidView> {
                     size: 30,
                   ),
                   onPressed: () async {
-                    await sendSms();
+                    await sendSmsT();
+                    // await sendSms();
                     widget.completer.complete();
                     Navigator.pop(context);
                   },

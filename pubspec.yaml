@@ -41,12 +41,12 @@ dependencies:
   telephony: ^0.2.0
   android_intent: ^2.0.0
   flutter_animate: ^4.2.0+1
+
   # device_info_plus: ^9.0.1
   # sms_advanced:
-  #   path: //Users/macbookpro/HelloMate/lib/sms_advanced
+  #   path: //Users/macbookpo/HelloMate/lib/sms_advanced
   flutter_sms:
-    path: /Users/macbookpro/HelloMate/flutter_sms-master
-    
+    path: /Users/Yechiel/Code/HelloMate/flutter_sms-master
 
 
   # flutter_contacts: ^1.1.6
@@ -61,7 +61,19 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_native_splash: ^2.3.1
+  flutter_launcher_icons: "^0.13.1"
+flutter_icons:
+  android: true
+  ios: false
+  image_path: "lib/assets/HelloMateIcon.png"
 
+flutter_native_splash:
+  color: '#ffffff'
+  image: 'hellomatelogo/hellomateicon/hellomateiconyellow/1x/HelloMateIconYellow.png'
+  color_dark: "#000000"
+  image_dark: 'hellomatelogo/hellomateicon/hellomateiconyellow/1x/HelloMateIconYellow.png'
+  androidNavigationBar: false
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your

@@ -7,7 +7,7 @@ import 'package:HelloMate/globals.dart';
 // import 'package:telephony/telephony.dart';
 
 Future<void> sendSms() async {
-  String phoneNumber = randomContactName ?? "";
+  String phoneNumber = randomContactNumber ?? "";
   String message = "Hello mate, it's been a while. How's it going?";
 
   SmsStatus result = await BackgroundSms.sendMessage(
@@ -24,7 +24,15 @@ Future<void> sendSms() async {
   }
 }
 
-
+// final SmsSendStatusListener listener = (SendStatus status) {
+// 	};
+	
+// void sendSmsT() {
+// 	to: "1234567890";
+// 	message: "May the force be with you!";
+// 	statusListener: listener;
+// }
+	
 
 // Future<void> smsAndroid() async {
 //   String? address = randomContactNumber;
