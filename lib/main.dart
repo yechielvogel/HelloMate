@@ -181,6 +181,8 @@ class _MyAppState extends State<MyApp> {
               titleNumbers: globals.randomContactNumber ?? '',
               retake: globals.retakeCounter.toString(),
               score: globals.scoreCounter.toString(),
+              // trailing: globals.faketrail,
+
               trailing: globals.now.toString(),
               profilePic: globals.randomContact?.profilePic));
     });
@@ -293,7 +295,7 @@ class _MyAppState extends State<MyApp> {
           foregroundColor: Theme.of(context).colorScheme.background,
           splashColor: Colors.transparent,
           hoverColor: Colors.transparent,
-          elevation: 5,
+          elevation: 2,
           onPressed: () async {
             HapticFeedback.heavyImpact();
             PermissionStatus status = await Permission.contacts.status;
@@ -302,6 +304,9 @@ class _MyAppState extends State<MyApp> {
             }
             await getContacts();
             // rememer to remove the lines below
+
+            // globals.retakeCounter = 1;
+            // globals.faketrail = 'Today';
             // SharedPreferences prefs = await SharedPreferences.getInstance();
             // int savedScore = prefs.getInt('scoreCounter') ?? 0;
             // globals.scoreCounter = savedScore + 1;
@@ -530,6 +535,8 @@ class TileWidget extends StatelessWidget {
               ],
             ),
             trailing: Text(
+              // trailing,
+              // globals.faketrail,
               getFormattedTrailing(trailing),
               style: TextStyle(
                 fontSize: 10.0,

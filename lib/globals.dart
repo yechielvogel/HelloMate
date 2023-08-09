@@ -18,6 +18,8 @@ bool systemSettings = false;
 String? textAgain;
 String? retakeNumber;
 String? smsandroid = '0';
+String faketrail = 'Yesterday';
+String fakeretake = '3';
 bool shouldAnimateBottomSheet = true;
 bool isDarkModeEnabled = false;
 List<String> shareButtonList = [];
