@@ -2,6 +2,8 @@ import UIKit
 import Flutter
 import MessageUI
 
+
+
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate, MFMessageComposeViewControllerDelegate, UINavigationControllerDelegate {
     var flutterMethodChannel: FlutterMethodChannel?
@@ -25,38 +27,43 @@ import MessageUI
                 result(FlutterMethodNotImplemented)
                 return
             }
-        
-           guard let args = call.arguments as? [String: Any], let name = args["name"] as? String else {
-               result(nil)
-               return
-           }
+            
+            guard let args = call.arguments as? [String: Any],
+                  let name = args["name"] as? String,
+                  let message = args["message"] as? String // Extract the message parameter
+            else {
+                result(nil)
+                return
+            }
 
             // Call the method to trigger the sending of the message
-            self?.sendMessageButtonTapped(recipient: name)
+            self?.sendMessageButtonTapped(recipient: name, message: message) // Pass the message parameter
             
             result(nil)
         })
+
 
         GeneratedPluginRegistrant.register(with: self)
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
     
-    @objc func sendMessageButtonTapped(recipient: String) {
+    @objc func sendMessageButtonTapped(recipient: String, message: String) { // Add message parameter
         let messageVC = MFMessageComposeViewController()
-        
+
         if MFMessageComposeViewController.canSendText() {
             messageVC.delegate = self
             messageVC.messageComposeDelegate = self
-            messageVC.body = "Hello mate, it's been a while. How's it going?"
+            messageVC.body = message // Set the message body
             messageVC.recipients = [recipient]
-            
+
             guard let rootViewController = window?.rootViewController else {
                 return
             }
-            
+
             rootViewController.present(messageVC, animated: true, completion: nil)
         }
     }
+
     
     @objc func messageComposeViewController(
         _ controller: MFMessageComposeViewController,

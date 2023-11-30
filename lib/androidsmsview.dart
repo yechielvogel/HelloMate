@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'smsandroidT.dart';
-// import 'package:HelloMate/sendsms_android.dart';
+import 'package:HelloMate/sendsms_android.dart';
 import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
-import 'globals.dart';
+import 'shared/globals.dart';
 // import 'main.dart';
 
 class smsAndroidView extends StatefulWidget {
@@ -16,9 +17,11 @@ class smsAndroidView extends StatefulWidget {
 }
 
 class _smsAndroidViewState extends State<smsAndroidView> {
+  Completer<void> loadingCompleter = Completer<void>();
+
   @override
   Widget build(BuildContext context) {
-    String preFilledText = "Hello mate, it's been a while. How's it going?";
+    // String preFilledText = "Hello mate, it's been a while. How's it going?";
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 70,
@@ -129,8 +132,8 @@ class _smsAndroidViewState extends State<smsAndroidView> {
                     size: 30,
                   ),
                   onPressed: () async {
-                    await sendSmsT();
-                    // await sendSms();
+                    // sendSms();
+                    await sendSms();
                     widget.completer.complete();
                     Navigator.pop(context);
                   },

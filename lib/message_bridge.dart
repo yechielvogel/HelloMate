@@ -1,4 +1,4 @@
-import 'package:HelloMate/globals.dart';
+import 'package:HelloMate/shared/globals.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 
@@ -9,8 +9,10 @@ class MessageBridge {
   static String _resultCode = '';
 
   static Future<String> sendmessage() async {
-    final arguments = {'name': randomContactNumber};
-
+    final arguments = {
+      'name': randomContactNumber,
+      'message': preFilledText,
+    };
     final result = Completer<String>();
     messageChannel.setMethodCallHandler((call) async {
       if (call.method == "messageComposeResult") {

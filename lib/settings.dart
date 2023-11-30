@@ -1,0 +1,455 @@
+import 'package:HelloMate/screens/home.dart';
+import 'package:HelloMate/theme_provider.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:HelloMate/shared/globals.dart' as globals;
+import 'main.dart';
+
+class Settings extends StatefulWidget {
+  @override
+  _MyWidgetState createState() => _MyWidgetState();
+}
+
+class _MyWidgetState extends State<Settings> {
+  retrieveDefaultMessage() {
+    throw UnimplementedError();
+  }
+
+  TextEditingController _controller =
+      TextEditingController(text: globals.preFilledText);
+  bool isTyping = false;
+  // String preFilledText = "Hello mate, it's been a while. How's it going?";
+
+  @override
+  Widget build(BuildContext context) {
+    return NotificationListener<OverscrollIndicatorNotification>(
+      onNotification: (overscroll) {
+        if (overscroll.leading) {
+          // Scroll down to dismiss the keyboard
+          FocusScope.of(context).unfocus(); // Close the keyboard
+          return true; // Consume the notification
+        }
+        return false; // Allow normal overscroll behavior
+      },
+      child: Container(
+        decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20.0),
+              topRight: Radius.circular(20.0),
+            )),
+        child: Padding(
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: SingleChildScrollView(
+            // keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  CupertinoIcons.minus,
+                  size: 50,
+                  color: Colors.yellow,
+                ),
+                SizedBox(height: 0),
+                Container(
+                  child: Text(
+                    'Settings',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 15),
+                  child: Container(
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.grey,
+                          width: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(left: 16),
+                      child: Text(
+                        'Dark mode',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(right: 16, left: 16),
+                      child: Consumer<ThemeProvider>(
+                        builder: (context, themeProvider, child) {
+                          bool systemToggleDark = themeProvider.isSystem &&
+                              themeProvider.isDarkMode;
+                          bool isDarkModeOn =
+                              themeProvider.isDarkMode || systemToggleDark;
+
+                          return CupertinoSwitch(
+                            value: isDarkModeOn,
+                            activeColor: Colors.yellow,
+                            onChanged: (value) async {
+                              final provider = Provider.of<ThemeProvider>(
+                                  context,
+                                  listen: false);
+                              provider.toggleSystem(value);
+                              if (systemToggleDark) {
+                                provider.toggleTheme(value);
+                                provider.toggleSystem(false);
+                              } else {
+                                provider.toggleTheme(value);
+                                provider.toggleSystem(false);
+                                await provider.saveSettings();
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(
+                        right: 16,
+                        left: 16,
+                      ),
+                      child: Text(
+                        'Use device settings',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(
+                        right: 16,
+                        left: 16,
+                      ),
+                      child: Consumer<ThemeProvider>(
+                        builder: (context, themeProvider, child) {
+                          return CupertinoSwitch(
+                            value: themeProvider.isSystem,
+                            activeColor: Colors.yellow,
+                            onChanged: (value) async {
+                              final provider = Provider.of<ThemeProvider>(
+                                  context,
+                                  listen: false);
+                              provider.toggleSystem(value);
+                              await provider.saveSettings();
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 30),
+                  child: Container(
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.grey,
+                          width: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Padding(
+                  padding: EdgeInsets.only(right: 16, left: 16, bottom: 20),
+                  child: TextField(
+                    maxLines: null,
+                    cursorColor: Theme.of(context).colorScheme.secondary,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey, width: 2.0),
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
+                    ),
+                    controller: _controller,
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                ),
+                TextButton(
+                  child: Text(
+                    'Save',
+                    style: TextStyle(
+                      color: Colors.yellow,
+                      fontSize: 15,
+                    ),
+                  ),
+                  onPressed: () async {
+                    HapticFeedback.heavyImpact();
+                    String inputText = _controller.text;
+                    setState(() {
+                      globals.preFilledText = inputText;
+                      Navigator.pop(context);
+                    });
+                    print(globals.preFilledText);
+                    await saveDefaultMessage();
+                    print(globals.preFilledText);
+                    print('saved');
+                  },
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+// @override
+//   Widget build(BuildContext context) {
+//     return SingleChildScrollView(
+//       // fix that you cant scroll if the keayboard is not open
+//       // also try that the keybaord should push up the widget.
+//       child: Padding(
+//         padding: EdgeInsets.only(
+//             top: MediaQuery.of(context).viewInsets.top,
+//             bottom: MediaQuery.of(context).viewInsets.bottom),
+//         child: Container(
+//           // MediaQuery.of(context).size.bottom,
+
+//           // height: MediaQuery.of(context).size.height,
+//           decoration: BoxDecoration(
+//               color: Theme.of(context).colorScheme.primary,
+//               borderRadius: BorderRadius.only(
+//                 topLeft: Radius.circular(20.0),
+//                 topRight: Radius.circular(20.0),
+//               )),
+//           child: Column(
+//             mainAxisSize: MainAxisSize.min,
+//             children: [
+//               Container(
+//                 child: Icon(
+//                   CupertinoIcons.minus,
+//                   size: 50,
+//                   color: Colors.yellow,
+//                   // Theme.of(context).colorScheme.secondary,
+//                 ),
+//               ),
+//               SizedBox(height: 0),
+//               Container(
+//                   child: Text(
+//                 'Settings',
+//                 style: TextStyle(
+//                   fontSize: 20,
+//                   fontWeight: FontWeight.bold,
+//                 ),
+//               )),
+//               Padding(
+//                 padding: EdgeInsets.only(bottom: 15),
+//                 child: Container(
+//                   height: 20,
+//                   decoration: BoxDecoration(
+//                     color: Theme.of(context).colorScheme.primary,
+//                     border: Border(
+//                       bottom: BorderSide(
+//                         color: Colors.grey,
+//                         width: 0.5,
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//               Row(
+//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                 children: [
+//                   Padding(
+//                     padding: EdgeInsets.only(left: 16),
+//                     child: Text(
+//                       'Dark mode',
+//                       style: TextStyle(
+//                         fontSize: 15,
+//                         fontWeight: FontWeight.bold,
+//                         color: Theme.of(context).colorScheme.secondary,
+//                       ),
+//                     ),
+//                   ),
+//                   Padding(
+//                     padding: EdgeInsets.only(right: 16, left: 16),
+//                     child: Consumer<ThemeProvider>(
+//                       builder: (context, themeProvider, child) {
+//                         bool systemToggleDark =
+//                             themeProvider.isSystem && themeProvider.isDarkMode;
+//                         bool isDarkModeOn =
+//                             themeProvider.isDarkMode || systemToggleDark;
+
+//                         return CupertinoSwitch(
+//                           value: isDarkModeOn,
+//                           activeColor: Colors.yellow,
+//                           onChanged: (value) async {
+//                             //  await Future.delayed(
+//                             //       const Duration(milliseconds: 500));
+//                             final provider = Provider.of<ThemeProvider>(context,
+//                                 listen: false);
+//                             provider.toggleSystem(value);
+//                             if (systemToggleDark) {
+//                               provider.toggleTheme(value);
+//                               provider.toggleSystem(false);
+//                             } else {
+//                               provider.toggleTheme(value);
+//                               provider.toggleSystem(false);
+//                               await provider.saveSettings();
+//                             }
+//                           },
+//                         );
+//                       },
+//                     ),
+//                   )
+//                 ],
+//               ),
+//               Container(),
+//               const SizedBox(height: 0),
+//               Row(
+//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                 children: [
+//                   Padding(
+//                     padding: EdgeInsets.only(
+//                       right: 16,
+//                       left: 16,
+//                     ),
+//                     child: Text(
+//                       'Use device settings',
+//                       style: TextStyle(
+//                         fontSize: 15,
+//                         fontWeight: FontWeight.bold,
+//                         color: Theme.of(context).colorScheme.secondary,
+//                       ),
+//                     ),
+//                   ),
+//                   Padding(
+//                     padding: EdgeInsets.only(
+//                       right: 16,
+//                       left: 16,
+//                     ),
+//                     child: Consumer<ThemeProvider>(
+//                         builder: (context, themeProvider, child) {
+//                       return CupertinoSwitch(
+//                         value: themeProvider.isSystem,
+//                         activeColor: Colors.yellow,
+//                         onChanged: (value) async {
+//                           final provider = Provider.of<ThemeProvider>(context,
+//                               listen: false);
+//                           provider.toggleSystem(value);
+//                           await provider.saveSettings();
+//                         },
+//                       );
+//                     }),
+//                   )
+//                 ],
+//               ),
+//               // Container(child: Text('Default message')),
+//               Padding(
+//                   padding: EdgeInsets.only(bottom: 30),
+//                   child: Container(
+//                       height: 20,
+//                       decoration: BoxDecoration(
+//                         color: Theme.of(context).colorScheme.primary,
+//                         border: Border(
+//                           bottom: BorderSide(
+//                             color: Colors.grey,
+//                             width: 0.5,
+//                           ),
+//                         ),
+//                       ))),
+//               Container(),
+//               const SizedBox(height: 15),
+//               Padding(
+//                 padding: EdgeInsets.only(right: 16, left: 16, bottom: 20),
+//                 child: TextField(
+//                   maxLines: null,
+//                   cursorColor: Theme.of(context).colorScheme.secondary,
+//                   decoration: InputDecoration(
+//                     border: OutlineInputBorder(
+//                       borderRadius: BorderRadius.circular(20.0),
+//                     ),
+//                     focusedBorder: OutlineInputBorder(
+//                       borderSide: BorderSide(color: Colors.grey, width: 2.0),
+//                       borderRadius: BorderRadius.circular(20.0),
+//                     ),
+//                     enabledBorder: OutlineInputBorder(
+//                       borderSide: BorderSide(color: Colors.grey, width: 1.0),
+//                       borderRadius: BorderRadius.circular(20.0),
+//                     ),
+//                     contentPadding:
+//                         EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
+//                   ),
+//                   controller: _controller,
+//                   style: const TextStyle(fontSize: 20),
+//                   // text: globals.preFilledText,
+//                 ),
+//                 // style: const TextStyle(fontSize: 20),
+//               ),
+//               // ),
+//               TextButton(
+//                 child: Text(
+//                   'Save',
+//                   style: TextStyle(
+//                     color: Colors.yellow,
+//                     fontSize: 15,
+//                   ),
+//                 ),
+//                 onPressed: () async {
+//                   HapticFeedback.heavyImpact();
+//                   String inputText = _controller.text;
+//                   setState(() {
+//                     globals.preFilledText = inputText;
+//                     Navigator.pop(context);
+//                   });
+//                   // globals.preFilledText = inputText;
+//                   print(inputText);
+//                   // print(globals.preFilledText);
+//                   print('saved');
+
+//                   // _controller.clear();
+//                   // await sendSms();
+//                 },
+//               ),
+//               const SizedBox(height: 20),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }

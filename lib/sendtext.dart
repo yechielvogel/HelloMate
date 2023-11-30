@@ -1,5 +1,5 @@
 import 'package:flutter_sms/flutter_sms.dart';
-import 'globals.dart' as globals;
+import 'package:HelloMate/shared/globals.dart' as globals;
 
 Future<bool> _sendSMS(String message, List<String> recipients) async {
   try {

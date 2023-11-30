@@ -41,6 +41,8 @@ dependencies:
   telephony: ^0.2.0
   android_intent: ^2.0.0
   flutter_animate: ^4.2.0+1
+  whatsapp_sender_flutter: ^0.2.0
+
 
   # device_info_plus: ^9.0.1
   # sms_advanced:
@@ -55,18 +57,20 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+  flutter_native_splash: ^2.3.1
+  flutter_spinkit: ^5.2.0
   # device_info: ^2.0.3
   # device_info_plus: ^9.0.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_native_splash: ^2.3.1
-  flutter_launcher_icons: "^0.13.1"
-flutter_icons:
-  android: true
-  ios: false
-  image_path: "lib/assets/HelloMateIcon.png"
+#   flutter_launcher_icons: ^0.13.1
+
+# flutter_icons: 
+#   android: true
+#   ios: false
+#   image_path: 'lib/assets/play_store_512.png'
 
 flutter_native_splash:
   color: '#ffffff'
@@ -74,6 +78,8 @@ flutter_native_splash:
   color_dark: "#000000"
   image_dark: 'hellomatelogo/hellomateicon/hellomateiconyellow/1x/HelloMateIconYellow.png'
   androidNavigationBar: false
+  android_12: 
+    image: 'hellomatelogo/hellomateicon/hellomateiconyellow/1x/HelloMateIconYellow.png'
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your

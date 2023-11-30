@@ -1,5 +1,5 @@
 import 'package:background_sms/background_sms.dart';
-import 'package:HelloMate/globals.dart';
+import 'package:HelloMate/shared/globals.dart';
 // import 'package:flutter/material.dart';
 // import 'package:HelloMate/main.dart';
 // import 'package:permission_handler/permission_handler.dart';
@@ -7,7 +7,7 @@ import 'package:HelloMate/globals.dart';
 // import 'package:telephony/telephony.dart';
 
 Future<void> sendSms() async {
-  String phoneNumber = randomContactNumber ?? "";
+  String phoneNumber = preFilledText ?? "";
   String message = "Hello mate, it's been a while. How's it going?";
 
   SmsStatus result = await BackgroundSms.sendMessage(
