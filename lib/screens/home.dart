@@ -276,6 +276,7 @@ class _HomeState extends State<Home> {
                 await addTileWidget();
                 await saveTileWidgets();
                 loadTileWidgets();
+                await Future.delayed(Duration(milliseconds: 500));
                 final WavingHandIconState wavingHandIconState =
                     wavingHandIconKey.currentState!;
                 await wavingHandIconState.waveHandOnDemand();
@@ -288,9 +289,9 @@ class _HomeState extends State<Home> {
               }
             } else if (Platform.isAndroid) {
               Completer<void> _completer = Completer<void>();
-              WavingHandIconState wave = WavingHandIconState();
+              // WavingHandIconState wave = WavingHandIconState();
 
-              wave.waveHandOnDemand();
+              // wave.waveHandOnDemand();
 
               Navigator.push(
                 context,
@@ -299,6 +300,10 @@ class _HomeState extends State<Home> {
                 ),
               );
               await _completer.future;
+              // await Future.delayed(Duration(milliseconds: 500));
+              // final WavingHandIconState wavingHandIconState =
+              //     wavingHandIconKey.currentState!;
+              // await wavingHandIconState.waveHandOnDemand();
               if (globals.smsandroid == '1') {
                 print('android');
                 print(globals.randomContact?.phoneNumber);
@@ -309,6 +314,7 @@ class _HomeState extends State<Home> {
                 await addTileWidget();
                 await saveTileWidgets();
                 loadTileWidgets();
+                await Future.delayed(Duration(milliseconds: 500));
                 final WavingHandIconState wavingHandIconState =
                     wavingHandIconKey.currentState!;
                 await wavingHandIconState.waveHandOnDemand();

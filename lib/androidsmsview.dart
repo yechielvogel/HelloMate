@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:HelloMate/shared/loading.dart';
+
 import 'smsandroidT.dart';
 import 'package:HelloMate/sendsms_android.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,6 +14,7 @@ class smsAndroidView extends StatefulWidget {
   final Completer<void> completer;
 
   smsAndroidView({required this.completer});
+
   @override
   _smsAndroidViewState createState() => _smsAndroidViewState();
 }
@@ -19,9 +22,20 @@ class smsAndroidView extends StatefulWidget {
 class _smsAndroidViewState extends State<smsAndroidView> {
   Completer<void> loadingCompleter = Completer<void>();
 
+  // Simulate a time-consuming task (replace this with your actual task)
+  Future<void> fetchData() async {
+    await Future.delayed(Duration(seconds: 2));
+    // You can perform any asynchronous task here
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadingCompleter.complete(fetchData());
+  }
+
   @override
   Widget build(BuildContext context) {
-    // String preFilledText = "Hello mate, it's been a while. How's it going?";
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 70,
@@ -57,52 +71,75 @@ class _smsAndroidViewState extends State<smsAndroidView> {
           ),
         ],
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            height: 50,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-              border: Border(
-                bottom: BorderSide(
-                  color: Colors.grey,
-                  width: 0.5,
-                ),
+      body: FutureBuilder(
+        // Replace with your actual asynchronous function
+        future: loadingCompleter.future,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // While data is being loaded, show a loading widget
+            return Loading();
+          } else if (snapshot.hasError) {
+            // If an error occurs, handle it here
+            return Text('Error: ${snapshot.error}');
+          } else {
+            // If the data has been loaded successfully, display your main widget
+            return buildMainWidget();
+          }
+        },
+      ),
+    );
+  }
+
+  Widget buildMainWidget() {
+    // Your main widget implementation
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          height: 50,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+            border: Border(
+              bottom: BorderSide(
+                color: Colors.grey,
+                width: 0.5,
               ),
             ),
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text(
-                  "To:    ",
-                  style: TextStyle(fontSize: 18),
-                ),
-                Text(
-                  '${randomContactName}',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.yellow,
-                  ),
-                ),
-              ],
-            ),
           ),
-          Expanded(
-            child: Container(
-              color: Theme.of(context).colorScheme.primary,
-            ),
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                "To:    ",
+                style: TextStyle(fontSize: 18),
+              ),
+              Text(
+                // this is a test remember to put back.
+                // 'Yechiel Vogel',
+                '${randomContactName}',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.yellow,
+                ),
+              ),
+            ],
           ),
-          Container(
+        ),
+        Expanded(
+          child: Container(
             color: Theme.of(context).colorScheme.primary,
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            height: 100,
-            child: Row(
-              children: [
-                Expanded(
-                    child: TextField(
+          ),
+        ),
+        Container(
+          color: Theme.of(context).colorScheme.primary,
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          height: 100,
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
                   maxLines: null,
                   cursorColor: Theme.of(context).colorScheme.secondary,
                   decoration: InputDecoration(
@@ -124,25 +161,25 @@ class _smsAndroidViewState extends State<smsAndroidView> {
                     text: preFilledText,
                   ),
                   style: const TextStyle(fontSize: 20),
-                )),
-                IconButton(
-                  icon: Icon(
-                    CupertinoIcons.arrow_up_circle_fill,
-                    color: Colors.yellow,
-                    size: 30,
-                  ),
-                  onPressed: () async {
-                    // sendSms();
-                    await sendSms();
-                    widget.completer.complete();
-                    Navigator.pop(context);
-                  },
-                )
-              ],
-            ),
+                ),
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.send, // Replace with your icon
+                  color: Colors.yellow,
+                  size: 30,
+                ),
+                onPressed: () async {
+                  // Your action when sending SMS
+                  await sendSmsT();
+                  widget.completer.complete();
+                  Navigator.pop(context);
+                },
+              )
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

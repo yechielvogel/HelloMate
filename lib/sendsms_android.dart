@@ -17,8 +17,10 @@ Future<void> sendSms() async {
 
   if (result == SmsStatus.sent) {
     smsandroid = '1';
-    print("androidsent");
+    print("status sent");
     print(smsandroid);
+  } else if (result == SmsStatus.failed) {
+    print('status faild');
   } else {
     print("Failed");
   }
@@ -26,13 +28,12 @@ Future<void> sendSms() async {
 
 // final SmsSendStatusListener listener = (SendStatus status) {
 // 	};
-	
+
 // void sendSmsT() {
 // 	to: "1234567890";
 // 	message: "May the force be with you!";
 // 	statusListener: listener;
 // }
-	
 
 // Future<void> smsAndroid() async {
 //   String? address = randomContactNumber;
