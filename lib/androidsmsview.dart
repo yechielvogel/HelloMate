@@ -172,6 +172,8 @@ class _smsAndroidViewState extends State<smsAndroidView> {
                 onPressed: () async {
                   // Your action when sending SMS
                   await sendSmsT();
+                  smsandroid = '1';
+
                   widget.completer.complete();
                   Navigator.pop(context);
                 },
