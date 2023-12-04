@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-final GlobalKey<WavingHandIconState> wavingHandIconKey = GlobalKey<WavingHandIconState>();
+
+final GlobalKey<WavingHandIconState> wavingHandIconKey =
+    GlobalKey<WavingHandIconState>();
 
 class WavingHandIcon extends StatefulWidget {
   final String iconImagePath;
@@ -54,6 +56,10 @@ class WavingHandIconState extends State<WavingHandIcon>
     }
   }
 
+  bool isDarkMode(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark;
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -68,17 +74,14 @@ class WavingHandIconState extends State<WavingHandIcon>
                 widget.iconImagePath,
                 width: 40,
                 height: 40,
-                color: Colors.yellow,
+                color: isDarkMode(context) ? Colors.white : Colors.black,
               ),
             );
           } else {
-            return Container(); 
+            return Container();
           }
         },
       ),
     );
   }
 }
-
-
-

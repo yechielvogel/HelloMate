@@ -36,6 +36,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   ThemeProvider themeProvider = ThemeProvider();
   await themeProvider.loadSettings();
+  await getContacts();
+
   runApp(
     ChangeNotifierProvider(
       create: (context) => themeProvider,

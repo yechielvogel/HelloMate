@@ -6,4 +6,5 @@ ThemeData lightTheme = ThemeData(
         background: Colors.white,
         primary: Color(0xFFF5F5F5),
         secondary: Colors.black,
-        tertiary: Color(0xFF212121)));
+        tertiary: Color(0xFF212121),
+        secondaryContainer: Colors.black));

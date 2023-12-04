@@ -45,6 +45,8 @@ class _HomeState extends State<Home> {
     loadTileWidgets();
   }
 
+  bool isLoadingContacts = false;
+
   void loadTileWidgets() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> tileWidgetTitles =
@@ -150,6 +152,9 @@ class _HomeState extends State<Home> {
     iconImagePath: 'lib/assets/HelloMateIcon.png',
     wavingHandIconKey: wavingHandIconKey,
   );
+  bool isDarkMode(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -184,7 +189,7 @@ class _HomeState extends State<Home> {
                           ? CupertinoIcons.gear_alt_fill
                           : CupertinoIcons.gear,
                     ),
-                    color: Colors.yellow,
+                    color: isDarkMode(context) ? Colors.white : Colors.black,
                     splashColor: Colors.transparent,
                     hoverColor: Colors.transparent,
                     highlightColor: Colors.transparent,
@@ -236,8 +241,8 @@ class _HomeState extends State<Home> {
         alignment: Alignment.bottomCenter,
         margin: const EdgeInsets.only(bottom: 0),
         child: FloatingActionButton(
-          backgroundColor: Colors.yellow,
-          foregroundColor: Theme.of(context).colorScheme.background,
+          backgroundColor: isDarkMode(context) ? Colors.yellow : Colors.yellow,
+          foregroundColor: isDarkMode(context) ? Colors.black : Colors.black,
           splashColor: Colors.transparent,
           hoverColor: Colors.transparent,
           elevation: 2,
@@ -247,7 +252,7 @@ class _HomeState extends State<Home> {
             if (status.isDenied) {
               status = await Permission.contacts.request();
             }
-            await getContacts();
+
             // rememer to remove the lines below
             // globals.retakeCounter = 1;
             // globals.faketrail = 'Today';
@@ -298,7 +303,7 @@ class _HomeState extends State<Home> {
                 MaterialPageRoute(
                   builder: (context) => smsAndroidView(completer: _completer),
                 ),
-              );
+              );   
               await _completer.future;
               // await Future.delayed(Duration(milliseconds: 500));
               // final WavingHandIconState wavingHandIconState =

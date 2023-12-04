@@ -21,6 +21,9 @@ class _MyWidgetState extends State<Settings> {
       TextEditingController(text: globals.preFilledText);
   bool isTyping = false;
   // String preFilledText = "Hello mate, it's been a while. How's it going?";
+  bool isDarkMode(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +54,7 @@ class _MyWidgetState extends State<Settings> {
                 Icon(
                   CupertinoIcons.minus,
                   size: 50,
-                  color: Colors.yellow,
+                  color: isDarkMode(context) ? Colors.white : Colors.black,
                 ),
                 SizedBox(height: 0),
                 Container(
@@ -209,7 +212,7 @@ class _MyWidgetState extends State<Settings> {
                   child: Text(
                     'Save',
                     style: TextStyle(
-                      color: Colors.yellow,
+                      color: isDarkMode(context) ? Colors.yellow : Colors.black,
                       fontSize: 15,
                     ),
                   ),

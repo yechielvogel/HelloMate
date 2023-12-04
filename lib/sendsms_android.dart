@@ -31,7 +31,7 @@ Future<void> sendSms() async {
 
 // void sendSmsT() {
 // 	to: "1234567890";
-// 	message: "May the force be with you!";
+// 	message: "";
 // 	statusListener: listener;
 // }
 

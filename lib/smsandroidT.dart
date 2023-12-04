@@ -8,14 +8,14 @@ Future<void> sendSmsT() async {
   try {
     await telephony.sendSms(
         // this is just for testing make sure to change back.
-        // to: '3477704206',
+        // to: '13477704206',
 
         to: '$randomContactNumber',
         message: "$preFilledText",
         statusListener: listener);
 
     if (listener == SmsStatus.STATUS_COMPLETE) {
-      smsandroid = '1';
+      // smsandroid = '1';
       print("androidTsent");
     } else if (listener == SmsStatus.STATUS_NONE) {
       print("status none");
