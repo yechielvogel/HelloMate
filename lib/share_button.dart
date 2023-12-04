@@ -4,7 +4,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:HelloMate/shared/globals.dart' as globals;
 
 String iosLink = 'https://apps.apple.com/gb/app//idid6449648643';
-String androidLink = 'No android link yet';
+String androidLink =
+    'https://play.google.com/store/apps/details?id=com.Yechiel.HelloMate';
 
 Future<void> onShare(BuildContext context) async {
   final box = context.findRenderObject() as RenderBox?;
