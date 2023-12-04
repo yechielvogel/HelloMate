@@ -252,6 +252,9 @@ class _HomeState extends State<Home> {
             if (status.isDenied) {
               status = await Permission.contacts.request();
             }
+            if (Platform.isIOS) {
+              await getContacts();
+            }
 
             // rememer to remove the lines below
             // globals.retakeCounter = 1;
@@ -303,7 +306,7 @@ class _HomeState extends State<Home> {
                 MaterialPageRoute(
                   builder: (context) => smsAndroidView(completer: _completer),
                 ),
-              );   
+              );
               await _completer.future;
               // await Future.delayed(Duration(milliseconds: 500));
               // final WavingHandIconState wavingHandIconState =
