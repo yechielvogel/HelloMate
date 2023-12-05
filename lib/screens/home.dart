@@ -7,25 +7,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:HelloMate/shared/globals.dart' as globals;
-import 'package:HelloMate/shared/loading.dart';
 
-import '../androidsmsview.dart';
-import '../getcontacts.dart';
-import '../message_bridge.dart';
-import '../sendtext.dart';
-import '../settings.dart';
-import '../share_button.dart';
-import '../theme_provider.dart';
-import '../wavinghand.dart';
+import '../functions/get_contacts_function.dart';
+import '../functions/message_bridge_function.dart';
+import '../functions/send_text_function.dart';
+import '../functions/share_function.dart';
+import '../widgets/android_sms_widget.dart';
+import '../widgets/empty_list_widget.dart';
+import '../widgets/settings.dart';
+import '../widgets/waving_hand_widget.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _HomeState createState() => _HomeState();
 }
 
@@ -33,9 +30,6 @@ class _HomeState extends State<Home> {
   bool isTileListEmpty() {
     return tileWidgets.isEmpty;
   }
-
-  // final WavingHandIconState? wavingHandState =
-  //     WavingHandIcon.wavingHandKey.currentState;
 
   List<TileWidget> tileWidgets = [];
 
@@ -104,7 +98,7 @@ class _HomeState extends State<Home> {
     await prefs.setStringList('tileWidgetTrailings', tileWidgetTrailings);
     await prefs.setStringList('tileWidgetScores', tileWidgetScore);
     await prefs.setStringList('tileWidgetProfilePics',
-        tileWidgetProfilePics); // Corrected the key name
+        tileWidgetProfilePics); 
   }
 
   Future<void> addTileWidget() async {
@@ -116,8 +110,6 @@ class _HomeState extends State<Home> {
               titleNumbers: globals.randomContactNumber ?? '',
               retake: globals.retakeCounter.toString(),
               score: globals.scoreCounter.toString(),
-              // trailing: globals.faketrail,
-
               trailing: globals.now.toString(),
               profilePic: globals.randomContact?.profilePic));
     });
@@ -199,7 +191,6 @@ class _HomeState extends State<Home> {
                       });
                       retrieveDefaultMessage();
                       showModalBottomSheet(
-                        // isScrollControlled: true, //new
                         backgroundColor: Theme.of(context).colorScheme.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.vertical(
@@ -207,9 +198,7 @@ class _HomeState extends State<Home> {
                           ),
                         ),
                         context: context,
-                        // builder: (context) => MyWidget(),
                         isScrollControlled: true,
-
                         builder: (context) => Settings(),
                       ).whenComplete(() {
                         setState(() {
@@ -221,9 +210,6 @@ class _HomeState extends State<Home> {
                 ],
               ),
             ],
-            //  body: Container(
-            //   color: Theme.of(context).colorScheme.background,
-            //   padding: const EdgeInsets.all(0),
             body: NotificationListener<OverscrollIndicatorNotification>(
               onNotification: (notification) {
                 notification.disallowGlow();
@@ -256,7 +242,7 @@ class _HomeState extends State<Home> {
               await getContacts();
             }
 
-            // rememer to remove the lines below
+            // remember to remove the lines below
             // globals.retakeCounter = 1;
             // globals.faketrail = 'Today';
             // SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -267,7 +253,7 @@ class _HomeState extends State<Home> {
             // await saveTileWidgets();
             // loadTileWidgets();
 
-            // untill here.
+            // until here.
             // DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 //            var iosInfo = await deviceInfo.iosInfo;
 // var androidInfo = await deviceInfo.androidInfo;
@@ -297,10 +283,6 @@ class _HomeState extends State<Home> {
               }
             } else if (Platform.isAndroid) {
               Completer<void> _completer = Completer<void>();
-              // WavingHandIconState wave = WavingHandIconState();
-
-              // wave.waveHandOnDemand();
-
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -308,10 +290,6 @@ class _HomeState extends State<Home> {
                 ),
               );
               await _completer.future;
-              // await Future.delayed(Duration(milliseconds: 500));
-              // final WavingHandIconState wavingHandIconState =
-              //     wavingHandIconKey.currentState!;
-              // await wavingHandIconState.waveHandOnDemand();
               if (globals.smsandroid == '1') {
                 print('android');
                 print(globals.randomContact?.phoneNumber);
@@ -352,10 +330,6 @@ class _HomeState extends State<Home> {
     );
   }
 
-// Future<void> callWavingHandClass() async {
-//   WavingHandIcon wavingInstance = WavingHandIcon();
-//   wavingInstance._StartWavingAnimation();
-// }
 
   void reloadWidgets() {
     loadTileWidgets();
@@ -374,12 +348,10 @@ Future<void> saveDefaultMessage() async {
 Future<void> retrieveDefaultMessage() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? preFilledText =
-      prefs.getString('preFilledText'); // Retrieve the value
-
+      prefs.getString('preFilledText');
   if (preFilledText != null) {
-    globals.preFilledText = preFilledText; // Use the retrieved value
+    globals.preFilledText = preFilledText; 
     print('Retrieved preFilledText: $preFilledText');
-    // You can assign it to a variable, use it in your UI, etc.
   } else {
     print('preFilledText not found in shared preferences.');
   }
@@ -563,169 +535,6 @@ Future<void> getContacts() async {
   globals.randomContactAvatar = globals.randomContact?.profilePic;
 }
 
-class MyWidget extends StatefulWidget {
-  @override
-  _MyWidgetState createState() => _MyWidgetState();
-}
 
-class _MyWidgetState extends State<MyWidget> {
-  // ignore: unused_field
-  TextEditingController _controller =
-      TextEditingController(text: globals.preFilledText);
 
-  // String preFilledText = "Hello mate, it's been a while. How's it going?";
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20.0),
-            topRight: Radius.circular(20.0),
-          )),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            child: Icon(
-              CupertinoIcons.minus,
-              size: 50,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-          ),
-          SizedBox(height: 0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(left: 16),
-                child: Text(
-                  'Dark mode',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(right: 16, left: 16),
-                child: Consumer<ThemeProvider>(
-                  builder: (context, themeProvider, child) {
-                    bool systemToggleDark =
-                        themeProvider.isSystem && themeProvider.isDarkMode;
-                    bool isDarkModeOn =
-                        themeProvider.isDarkMode || systemToggleDark;
 
-                    return CupertinoSwitch(
-                      value: isDarkModeOn,
-                      activeColor: Colors.yellow,
-                      onChanged: (value) async {
-                        //  await Future.delayed(
-                        //       const Duration(milliseconds: 500));
-                        final provider =
-                            Provider.of<ThemeProvider>(context, listen: false);
-                        provider.toggleSystem(value);
-                        if (systemToggleDark) {
-                          provider.toggleTheme(value);
-                          provider.toggleSystem(false);
-                        } else {
-                          provider.toggleTheme(value);
-                          provider.toggleSystem(false);
-                          await provider.saveSettings();
-                        }
-                      },
-                    );
-                  },
-                ),
-              )
-            ],
-          ),
-          Container(),
-          const SizedBox(height: 0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(right: 16, left: 16, bottom: 50),
-                child: Text(
-                  'Use device settings',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(right: 16, left: 16, bottom: 50),
-                child: Consumer<ThemeProvider>(
-                    builder: (context, themeProvider, child) {
-                  return CupertinoSwitch(
-                    value: themeProvider.isSystem,
-                    activeColor: Colors.yellow,
-                    onChanged: (value) async {
-                      final provider =
-                          Provider.of<ThemeProvider>(context, listen: false);
-                      provider.toggleSystem(value);
-                      await provider.saveSettings();
-                    },
-                  );
-                }),
-              )
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class EmptyListWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // bool isIOS = Theme.of(context).platform == TargetPlatform.iOS;
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            height: 80,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Text(
-                // "You don't have no hellos, tap the yellow button to begin.",
-                // "Welcome to HelloMate, tap the yellow button to begin, your hellos will appear here.",
-                "Tap the button below to begin. your 'Hellos' will appear here.",
-                style: TextStyle(
-                  fontSize: 21,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 20), // Add some space between the two containers
-          // Container(
-          //   // Your second container here
-          //   height: 570,
-          //   decoration: BoxDecoration(
-          //     borderRadius: BorderRadius.circular(20),
-          //     color: Theme.of(context).colorScheme.primary,
-          //   ),
-          //   // child: Center(
-          //   //   child: Image.asset(
-          //   //     'lib/assets/StartScreenShotWhite.png',
-          //   //     height: 500,
-          //   //   ),
-          //   // ),
-          // ),
-        ],
-      ),
-    );
-  }
-}

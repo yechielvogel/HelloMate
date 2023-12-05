@@ -20,17 +20,8 @@ Future<void> sendText() async {
   bool isSent = await _sendSMS(message, recipients);
 
   if (isSent) {
-    runCertainFunction();
+    print('sent');
   } else {
-    handleSendingFailed();
+    print('did not send');
   }
-}
-
-void runCertainFunction() {
-  print('sent');
-}
-
-void handleSendingFailed() {
-  print('did not send');
-  print(globals.textAgain);
 }

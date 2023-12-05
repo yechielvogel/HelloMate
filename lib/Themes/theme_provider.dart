@@ -137,7 +137,3 @@ class MyThemes {
           secondary: Colors.black,
           tertiary: Color(0xFF212121)));
 }
-
-
-//  if (WidgetsBinding.instance?.window.platformBrightness == Brightness.dark) {
-      // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);

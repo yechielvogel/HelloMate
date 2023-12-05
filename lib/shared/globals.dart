@@ -1,11 +1,9 @@
-// globals.dart
 library my_project.globals;
 
 import 'package:shared_preferences/shared_preferences.dart';
-import '../getcontacts.dart';
-// import 'getcontacts.dart';
 import 'package:intl/intl.dart';
-// import 'package:flutter/material.dart';
+
+import '../models/contact_info_model.dart';
 
 ContactInfo? randomContact;
 String? randomContactName;

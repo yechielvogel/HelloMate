@@ -37,6 +37,3 @@ void retakeTry() {
     globals.textAgain = ' tries';
   }
 }
-// I challenge you!
-// Try it yourself
-// https://itunes.apple.com/idhttps://itunes.apple.com/id6449648643

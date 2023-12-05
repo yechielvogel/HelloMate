@@ -18,6 +18,8 @@ class WavingHandIcon extends StatefulWidget {
 class WavingHandIconState extends State<WavingHandIcon>
     with SingleTickerProviderStateMixin<WavingHandIcon> {
   late AnimationController _controller;
+  // this ignored might cause trouble will find out
+  // ignore: unused_field
   double _rotationValue = 0.0;
 
   @override

@@ -2,12 +2,10 @@ import 'dart:async';
 import 'package:HelloMate/screens/home.dart';
 import 'package:HelloMate/shared/loading.dart';
 
-import 'smsandroidT.dart';
-import 'package:HelloMate/sendsms_android.dart';
-import 'package:flutter/cupertino.dart';
+import '../functions/send_sms_android_function.dart';
+import '../shared/globals.dart';
 
 import 'package:flutter/material.dart';
-import 'shared/globals.dart';
 
 class smsAndroidView extends StatefulWidget {
   final Completer<void> completer;
